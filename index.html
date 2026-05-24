@@ -135,17 +135,49 @@
   .modal-btns { display: flex; gap: 8px; margin-top: 4px; }
   .modal-btns button { flex: 1; padding: 9px; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.12s; }
 
-  /* RECEIPT PRINT */
+  /* RECEIPT PRINT — 58mm thermal */
+  .receipt-area { display: none; }
   @media print {
+    @page { size: 58mm auto; margin: 0; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .app { display: none !important; }
     .receipt-area { display: block !important; }
   }
-  .receipt-area { display: none; }
-  .receipt { font-family: 'Courier New', monospace; font-size: 13px; max-width: 300px; padding: 20px; }
-  .receipt-center { text-align: center; }
-  .receipt-divider { border: none; border-top: 1px dashed #000; margin: 10px 0; }
-  .receipt-row { display: flex; justify-content: space-between; margin: 3px 0; }
-  .receipt-total { font-weight: bold; font-size: 15px; }
+  /* 58mm = ~220px usable at 96dpi */
+  .receipt {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    width: 54mm;
+    padding: 3mm 2mm;
+    margin: 0 auto;
+    color: #000;
+    background: #fff;
+  }
+  .r-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 3mm;
+    gap: 2mm;
+  }
+  .r-datetime { font-size: 8px; line-height: 1.5; color: #000; text-align: left; }
+  .r-brand-title { font-size: 7.5px; font-weight: bold; text-align: right; line-height: 1.4; color: #000; max-width: 28mm; }
+  .r-logo-wrap { text-align: center; margin: 2mm 0; }
+  .r-logo-wrap img { max-width: 22mm; max-height: 16mm; object-fit: contain; }
+  .r-logo-placeholder { font-size: 18px; text-align: center; }
+  .r-divider { border: none; border-top: 1px dashed #000; margin: 2mm 0; }
+  .r-divider-solid { border: none; border-top: 1px solid #000; margin: 2mm 0; }
+  .r-order { font-size: 9px; text-align: center; margin-bottom: 1mm; }
+  .r-customer { font-size: 8.5px; text-align: center; margin-bottom: 2mm; }
+  .r-items { width: 100%; border-collapse: collapse; font-size: 9px; margin: 1mm 0; }
+  .r-items td { padding: 0.8mm 0; vertical-align: top; }
+  .r-items .r-item-name { width: 55%; word-break: break-word; }
+  .r-items .r-item-qty  { width: 10%; text-align: center; }
+  .r-items .r-item-price { width: 35%; text-align: right; }
+  .r-total-row { display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; margin: 1mm 0; }
+  .r-center { text-align: center; }
+  .r-thanks { font-size: 9px; text-align: center; margin-top: 2mm; line-height: 1.6; }
+  .r-wifi { font-size: 8.5px; text-align: center; margin-top: 2mm; border-top: 1px dashed #000; padding-top: 2mm; }
 </style>
 </head>
 <body>
@@ -159,6 +191,10 @@
         <p id="dateStr"></p>
       </div>
       <div class="header-actions">
+        <label class="btn" style="cursor:pointer" title="Upload logo for receipt">
+          🖼 Logo
+          <input type="file" accept="image/*" style="display:none" onchange="uploadLogo(event)" />
+        </label>
         <button class="btn btn-dark" onclick="openAdd()">+ Add item</button>
       </div>
     </div>
@@ -209,19 +245,65 @@
 const MENU_KEY = 'namorapos_menu';
 const SHEET_KEY = 'namorapos_sheet';
 const TOKEN_KEY = 'namorapos_gtoken';
+const ORDER_CTR_KEY = 'namorapos_orderctr';
+
+function getNextOrderId() {
+  let ctr = parseInt(localStorage.getItem(ORDER_CTR_KEY) || '0') + 1;
+  localStorage.setItem(ORDER_CTR_KEY, ctr);
+  return String(ctr).padStart(7, '0');
+}
 
 let menu = JSON.parse(localStorage.getItem(MENU_KEY) || 'null') || [
-  {id:1, name:'Espresso',       price:10000, cat:'Coffee'},
-  {id:2, name:'Cappuccino',     price:16000, cat:'Coffee'},
-  {id:3, name:'Latte',          price:18000, cat:'Coffee'},
-  {id:4, name:'Americano',      price:12000, cat:'Coffee'},
-  {id:5, name:'V60 Pour Over',  price:20000, cat:'Coffee'},
-  {id:6, name:'Matcha Latte',   price:24000, cat:'Non-Coffee'},
-  {id:7, name:'Chocolate',      price:18000, cat:'Non-Coffee'},
-  {id:8, name:'Teh Tarik',      price:15000, cat:'Non-Coffee'},
-  {id:9, name:'Kentang Goreng', price:16000, cat:'Food'},
-  {id:10,name:'Chicken Katsu',  price:18000, cat:'Food'},
-  {id:11,name:'Banana Bread',   price:22000, cat:'Food'},
+  {id:1,  name:'Espresso',                        price:10000, cat:'Espresso Base'},
+  {id:2,  name:'Americano',                       price:12000, cat:'Espresso Base'},
+  {id:3,  name:'Ice Americano',                   price:12500, cat:'Espresso Base'},
+  {id:4,  name:'Citresso',                        price:15000, cat:'Espresso Base'},
+  {id:5,  name:'Affogato',                        price:18000, cat:'Espresso Base'},
+  {id:6,  name:'Cappucino',                       price:18000, cat:'Espresso Base'},
+  {id:7,  name:'Ice Cappucino',                   price:20000, cat:'Espresso Base'},
+  {id:8,  name:'Coffee Latte',                    price:18000, cat:'Espresso Base'},
+  {id:9,  name:'Ice Coffee Latte',                price:20000, cat:'Espresso Base'},
+  {id:10, name:'Aren Latte',                      price:18000, cat:'Espresso Base'},
+  {id:11, name:'Ice Aren Latte',                  price:20000, cat:'Espresso Base'},
+  {id:12, name:'Vanilla Latte',                   price:18000, cat:'Espresso Base'},
+  {id:13, name:'Ice Vanilla Latte',               price:20000, cat:'Espresso Base'},
+  {id:14, name:'Hazelnut Latte',                  price:18000, cat:'Espresso Base'},
+  {id:15, name:'Ice Hazelnut Latte',              price:20000, cat:'Espresso Base'},
+  {id:16, name:'Caramel Sea Salt Latte',          price:18000, cat:'Espresso Base'},
+  {id:17, name:'Ice Caramel Sea Salt Latte',      price:20000, cat:'Espresso Base'},
+  {id:18, name:'Butterscotch Sea Salt Latte',     price:18000, cat:'Espresso Base'},
+  {id:19, name:'Ice Butterscotch Sea Salt Latte', price:20000, cat:'Espresso Base'},
+  {id:20, name:'Kopi Tubruk',                     price:8000,  cat:'Coffee Non Espresso'},
+  {id:21, name:'Kopi Tubruk Susu',                price:10000, cat:'Coffee Non Espresso'},
+  {id:22, name:'Ice Kopi Tubruk Susu',            price:12000, cat:'Coffee Non Espresso'},
+  {id:23, name:'V60 / Pour Over',                 price:18000, cat:'Coffee Non Espresso'},
+  {id:24, name:'Ice V60 / Pour Over',             price:20000, cat:'Coffee Non Espresso'},
+  {id:25, name:'Vietnam Drip',                    price:12000, cat:'Coffee Non Espresso'},
+  {id:26, name:'Ice Vietnam Drip',                price:14000, cat:'Coffee Non Espresso'},
+  {id:27, name:'Hot Tea',                         price:5000,  cat:'Non Coffee'},
+  {id:28, name:'Ice Tea',                         price:6000,  cat:'Non Coffee'},
+  {id:29, name:'Milk Tea',                        price:14000, cat:'Non Coffee'},
+  {id:30, name:'Ice Milk Tea',                    price:15000, cat:'Non Coffee'},
+  {id:31, name:'Chocolate',                       price:16000, cat:'Non Coffee'},
+  {id:32, name:'Ice Chocolate',                   price:18000, cat:'Non Coffee'},
+  {id:33, name:'Hot Orange',                      price:15000, cat:'Non Coffee'},
+  {id:34, name:'Ice Hot Orange',                  price:17000, cat:'Non Coffee'},
+  {id:35, name:'Speciality Tea',                  price:15000, cat:'Non Coffee'},
+  {id:36, name:'Seasonal Juice',                  price:18000, cat:'Non Coffee'},
+  {id:37, name:'Nasi Goreng Telur',               price:18000, cat:'Food'},
+  {id:38, name:'Nasi Goreng Katsu',               price:18000, cat:'Food'},
+  {id:39, name:'Nasi Goreng Bakso',               price:18000, cat:'Food'},
+  {id:40, name:'Nasi Goreng Sosis',               price:18000, cat:'Food'},
+  {id:41, name:'Rice Bowl Katsu',                 price:15000, cat:'Food'},
+  {id:42, name:'Mie Goreng',                      price:12000, cat:'Food'},
+  {id:43, name:'French Fries',                    price:12000, cat:'Snack'},
+  {id:44, name:'Nugget',                          price:15000, cat:'Snack'},
+  {id:45, name:'Basreng',                         price:15000, cat:'Snack'},
+  {id:46, name:'Sosis',                           price:15000, cat:'Snack'},
+  {id:47, name:'Mix Plater',                      price:20000, cat:'Snack'},
+  {id:48, name:'Pisang Goreng',                   price:15000, cat:'Snack'},
+  {id:49, name:'Donut',                           price:15000, cat:'Snack'},
+  {id:50, name:'Roti Bakar',                           price:15000, cat:'Snack'},
 ];
 let cart = [];
 let activeCat = 'All';
@@ -417,7 +499,7 @@ async function appendToSheets(orderData) {
 async function processOrder() {
   if (!cart.length) return;
   const now = new Date();
-  const orderId = 'ORD-' + now.getTime().toString().slice(-7);
+  const orderId = getNextOrderId();
   const customer = document.getElementById('custName').value.trim();
   const total = cart.reduce((s, c) => s + c.price * c.qty, 0);
   const orderData = {
@@ -441,33 +523,86 @@ async function processOrder() {
 }
 
 function buildReceipt(o) {
-  const sep = '--------------------------------';
-  const rows = o.items.map(i => {
-    const left = `${i.name} x${i.qty}`;
-    const right = fmt(i.price * i.qty);
-    const spaces = 32 - left.length - right.length;
-    return left + ' '.repeat(Math.max(1, spaces)) + right;
-  }).join('\n');
+  const logoSrc = localStorage.getItem('namorapos_logo') || '';
+  const logoHtml = logoSrc
+    ? `<div class="r-logo-wrap"><img src="${logoSrc}" alt="Namora Cafe" /></div>`
+    : `<div class="r-logo-placeholder">☕</div>`;
+
+  const itemRows = o.items.map(i => `
+    <tr>
+      <td class="r-item-name">${i.name}</td>
+      <td class="r-item-qty">${i.qty}</td>
+      <td class="r-item-price">${fmt(i.price * i.qty)}</td>
+    </tr>
+    <tr>
+      <td colspan="3" style="font-size:8px;color:#555;padding-bottom:1mm;">@ ${fmt(i.price)}</td>
+    </tr>
+  `).join('');
+
   document.getElementById('receiptArea').innerHTML = `
     <div class="receipt">
-      <div class="receipt-center">
-        <strong>☕ NAMORAPOS</strong><br>
-        sylvan.id/NamoraPOS<br>
-        ${o.date} — ${o.time}<br>
-        Order: ${o.orderId}${o.customer ? '\nCustomer: ' + o.customer : ''}
+
+      <!-- TOP BAR: date-time left, brand right -->
+      <div class="r-top">
+        <div class="r-datetime">
+          ${o.date}<br>${o.time}
+        </div>
+        <div class="r-brand-title">
+          Namora POS<br>Cafe Point of Sale
+        </div>
       </div>
-      <hr class="receipt-divider">
-      <pre>${rows}</pre>
-      <hr class="receipt-divider">
-      <div class="receipt-row receipt-total">
-        <span>TOTAL</span><span>${fmt(o.total)}</span>
+
+      <!-- LOGO CENTER -->
+      ${logoHtml}
+
+      <hr class="r-divider-solid">
+
+      <!-- ORDER NUMBER & CUSTOMER -->
+      <div class="r-order">No. Order : <strong>${o.orderId}</strong></div>
+      ${o.customer ? `<div class="r-customer">Customer : ${o.customer}</div>` : ''}
+
+      <hr class="r-divider">
+
+      <!-- ITEMS -->
+      <table class="r-items">
+        <tbody>${itemRows}</tbody>
+      </table>
+
+      <hr class="r-divider">
+
+      <!-- TOTAL -->
+      <div class="r-total-row">
+        <span>TOTAL</span>
+        <span>${fmt(o.total)}</span>
       </div>
-      <hr class="receipt-divider">
-      <div class="receipt-center" style="margin-top:10px">
-        Terima kasih! 🙏<br>
+
+      <hr class="r-divider-solid">
+
+      <!-- THANK YOU -->
+      <div class="r-thanks">
+        Terima kasih 🙏<br>
         Sampai jumpa lagi
       </div>
+
+      <!-- WIFI NOTE -->
+      <div class="r-wifi">
+        WiFi &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <strong>NAMORA Cafe</strong><br>
+        WiFi Pass : <strong>ngopisantai</strong>
+      </div>
+
     </div>`;
+}
+
+// ── LOGO UPLOAD ───────────────────────────────────────
+function uploadLogo(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    localStorage.setItem('namorapos_logo', ev.target.result);
+    alert('Logo saved! It will appear on printed receipts.');
+  };
+  reader.readAsDataURL(file);
 }
 
 // ── INIT ──────────────────────────────────────────────
