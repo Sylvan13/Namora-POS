@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>NamoraPOS v3.1 — Cafe Point of Sale</title>
+<title>NamoraPOS v3.5 — Cafe Point of Sale</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
@@ -55,8 +55,8 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
 .page#page-analisa.active{overflow-y:auto}
 
 /* KASIR */
-.kasir-left{flex:1;padding:1.25rem;overflow-y:auto;height:100vh}
-.kasir-right{width:340px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;height:100vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.kasir-left{flex:1;padding:1.25rem;overflow-y:auto;-webkit-overflow-scrolling:touch;height:100vh;min-height:0}
+.kasir-right{width:340px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;height:100vh;overflow:hidden}
 .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
 .page-title h2{font-family:'DM Serif Display',serif;font-size:22px;color:var(--accent)}
 .page-title p{font-size:11px;color:var(--hint);margin-top:2px}
@@ -87,7 +87,7 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
 .icon-btn.del:hover{background:var(--red-bg);color:var(--red)}
 
 /* CART HEADER */
-.cart-header{padding:0.85rem 1.1rem 0.75rem;border-bottom:1px solid var(--border)}
+.cart-header{flex-shrink:0;padding:0.85rem 1.1rem 0.75rem;border-bottom:1px solid var(--border)}
 .cart-title{font-family:'DM Serif Display',serif;font-size:17px;color:var(--accent);display:flex;align-items:center;gap:8px}
 .cart-badge{font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600;background:var(--accent);color:var(--accent-fg);padding:2px 7px;border-radius:999px}
 .cart-time{font-size:10px;color:var(--hint);margin-top:2px}
@@ -100,7 +100,7 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
 .dine-opt.sel-take{border-color:var(--amber);background:var(--amber-bg);color:var(--amber)}
 
 /* CART BODY */
-.cart-body{padding:0.75rem 1.1rem;min-height:60px}
+.cart-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0.75rem 1.1rem;min-height:0}
 .cart-empty{text-align:center;padding:2rem 1rem;color:var(--hint)}
 .cart-empty-icon{font-size:28px;margin-bottom:6px}
 .cart-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)}
@@ -114,7 +114,7 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
 .qty-num{font-size:12px;font-weight:500;min-width:16px;text-align:center}
 
 /* CART FOOTER */
-.cart-footer{padding:0.75rem 1.1rem;border-top:1px solid var(--border);}
+.cart-footer{flex-shrink:0;padding:0.75rem 1.1rem;border-top:1px solid var(--border);overflow-y:auto;-webkit-overflow-scrolling:touch;max-height:55vh}
 .summary-row{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px}
 .online-surcharge-row{display:flex;justify-content:space-between;font-size:11px;color:var(--amber);margin-bottom:4px;font-weight:500}
 .total-row{display:flex;justify-content:space-between;font-family:'DM Serif Display',serif;font-size:19px;color:var(--accent);padding-top:6px;margin-top:3px;border-top:1px solid var(--border);margin-bottom:9px}
@@ -254,7 +254,7 @@ table.data-table tr:hover td{background:var(--bg)}
 <div class="sidebar">
   <div class="sidebar-brand">
     <h1>NamoraPOS</h1>
-    <p>Cafe Point of Sale v3.1</p>
+    <p>Cafe Point of Sale v3.5</p>
   </div>
   <nav class="sidebar-nav">
     <div class="nav-item active" onclick="showPage('kasir')" id="nav-kasir">
@@ -430,7 +430,7 @@ table.data-table tr:hover td{background:var(--bg)}
   <div class="page" id="page-setting">
     <div class="rekap-page" style="flex:1">
       <div class="page-header">
-        <div class="page-title"><h2>Setting</h2><p>Konfigurasi NamoraPOS v3.1</p></div>
+        <div class="page-title"><h2>Setting</h2><p>Konfigurasi NamoraPOS v3.5</p></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;max-width:800px">
 
@@ -483,7 +483,7 @@ table.data-table tr:hover td{background:var(--bg)}
         <div class="analisa-card" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem">
           <h3 style="font-family:'DM Serif Display',serif;font-size:17px;color:var(--accent);margin-bottom:0.35rem">Informasi Aplikasi</h3>
           <div style="font-size:12px;color:var(--muted);line-height:2.2">
-            <div style="display:flex;justify-content:space-between"><span>Versi</span><strong style="color:var(--text)">v3.1</strong></div>
+            <div style="display:flex;justify-content:space-between"><span>Versi</span><strong style="color:var(--text)">v3.5</strong></div>
             <div style="display:flex;justify-content:space-between"><span>Total Transaksi</span><strong id="totalTxSetting" style="color:var(--text)">0</strong></div>
             <div style="display:flex;justify-content:space-between"><span>Data disimpan di</span><strong style="color:var(--text)">Browser lokal</strong></div>
             <div style="display:flex;justify-content:space-between"><span>Dibuat oleh</span><strong style="color:var(--text)">Sylvan</strong></div>
