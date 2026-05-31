@@ -2,8 +2,8 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>NamoraPOS v3.5 — Cafe Point of Sale</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>NamoraPOS v3.6 — Cafe Point of Sale</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
@@ -24,11 +24,12 @@
   --purple:#7B3FBE;--purple-bg:#F3EAFF;
   --sidebar-w:200px;--radius:10px;--radius-lg:14px;
 }
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;overflow:hidden;height:100vh}
+html{height:-webkit-fill-available}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;margin:0;height:100vh;height:100dvh;height:calc(var(--vh,1vh)*100);overflow:hidden}
 button{font-family:'DM Sans',sans-serif;cursor:pointer}
 
 /* SIDEBAR */
-.sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sidebar-w);background:var(--accent);display:flex;flex-direction:column;z-index:50}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sidebar-w);background:var(--accent);display:flex;flex-direction:column;z-index:50;height:100vh;height:100dvh;height:calc(var(--vh,1vh)*100)}
 .sidebar-brand{padding:1.25rem 1.25rem 1rem;border-bottom:1px solid rgba(255,255,255,0.08)}
 .sidebar-brand h1{font-family:'DM Serif Display',serif;font-size:20px;color:#F5F0E8;letter-spacing:-0.02em}
 .sidebar-brand p{font-size:10px;color:rgba(245,240,232,0.45);margin-top:2px}
@@ -38,7 +39,7 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
 .nav-item:hover{color:#F5F0E8;background:rgba(255,255,255,0.06)}
 .nav-item.active{color:#F5F0E8;border-left-color:#D4A853;background:rgba(255,255,255,0.08)}
 .nav-setting{border-top:1px solid rgba(255,255,255,0.08);margin:0}
-.sidebar-footer{padding:0.85rem 1.25rem;border-top:1px solid rgba(255,255,255,0.08)}
+.sidebar-footer{padding:0.85rem 1.25rem;padding-bottom:max(0.85rem, env(safe-area-inset-bottom));border-top:1px solid rgba(255,255,255,0.08)}
 .sidebar-footer p{font-size:10px;color:rgba(245,240,232,0.3)}
 
 /* LOCK BADGE on sidebar */
@@ -47,16 +48,16 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
 .lock-badge.unlocked{background:rgba(100,255,150,0.2);color:#88FFAA}
 
 /* MAIN */
-.main{margin-left:var(--sidebar-w);height:100vh;overflow:hidden}
-.page{display:none;height:100vh;overflow:hidden}
+.main{margin-left:var(--sidebar-w);height:100vh;height:100dvh;height:calc(var(--vh,1vh)*100);overflow:hidden}
+.page{display:none;height:100vh;height:100dvh;height:calc(var(--vh,1vh)*100);overflow:hidden}
 .page.active{display:flex}
 .page#page-setting.active,
 .page#page-rekap.active,
-.page#page-analisa.active{overflow-y:auto}
+.page#page-analisa.active{overflow-y:auto;-webkit-overflow-scrolling:touch}
 
 /* KASIR */
-.kasir-left{flex:1;padding:1.25rem;overflow-y:auto;-webkit-overflow-scrolling:touch;height:100vh;min-height:0}
-.kasir-right{width:340px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.kasir-left{flex:1;padding:1.25rem;overflow-y:auto;-webkit-overflow-scrolling:touch;height:100%;min-height:0}
+.kasir-right{width:340px;background:var(--surface);border-left:1px solid var(--border);display:flex;flex-direction:column;height:100%;overflow:hidden}
 .page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
 .page-title h2{font-family:'DM Serif Display',serif;font-size:22px;color:var(--accent)}
 .page-title p{font-size:11px;color:var(--hint);margin-top:2px}
@@ -114,7 +115,7 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
 .qty-num{font-size:12px;font-weight:500;min-width:16px;text-align:center}
 
 /* CART FOOTER */
-.cart-footer{flex-shrink:0;padding:0.75rem 1.1rem;border-top:1px solid var(--border);overflow-y:auto;-webkit-overflow-scrolling:touch;max-height:55vh}
+.cart-footer{flex-shrink:0;padding:0.75rem 1.1rem;padding-bottom:max(0.75rem, env(safe-area-inset-bottom));border-top:1px solid var(--border);overflow-y:auto;-webkit-overflow-scrolling:touch;max-height:55vh}
 .summary-row{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px}
 .online-surcharge-row{display:flex;justify-content:space-between;font-size:11px;color:var(--amber);margin-bottom:4px;font-weight:500}
 .total-row{display:flex;justify-content:space-between;font-family:'DM Serif Display',serif;font-size:19px;color:var(--accent);padding-top:6px;margin-top:3px;border-top:1px solid var(--border);margin-bottom:9px}
@@ -254,7 +255,7 @@ table.data-table tr:hover td{background:var(--bg)}
 <div class="sidebar">
   <div class="sidebar-brand">
     <h1>NamoraPOS</h1>
-    <p>Cafe Point of Sale v3.5</p>
+    <p>Cafe Point of Sale v3.6</p>
   </div>
   <nav class="sidebar-nav">
     <div class="nav-item active" onclick="showPage('kasir')" id="nav-kasir">
@@ -430,7 +431,7 @@ table.data-table tr:hover td{background:var(--bg)}
   <div class="page" id="page-setting">
     <div class="rekap-page" style="flex:1">
       <div class="page-header">
-        <div class="page-title"><h2>Setting</h2><p>Konfigurasi NamoraPOS v3.5</p></div>
+        <div class="page-title"><h2>Setting</h2><p>Konfigurasi NamoraPOS v3.6</p></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;max-width:800px">
 
@@ -483,7 +484,7 @@ table.data-table tr:hover td{background:var(--bg)}
         <div class="analisa-card" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem">
           <h3 style="font-family:'DM Serif Display',serif;font-size:17px;color:var(--accent);margin-bottom:0.35rem">Informasi Aplikasi</h3>
           <div style="font-size:12px;color:var(--muted);line-height:2.2">
-            <div style="display:flex;justify-content:space-between"><span>Versi</span><strong style="color:var(--text)">v3.5</strong></div>
+            <div style="display:flex;justify-content:space-between"><span>Versi</span><strong style="color:var(--text)">v3.6</strong></div>
             <div style="display:flex;justify-content:space-between"><span>Total Transaksi</span><strong id="totalTxSetting" style="color:var(--text)">0</strong></div>
             <div style="display:flex;justify-content:space-between"><span>Data disimpan di</span><strong style="color:var(--text)">Browser lokal</strong></div>
             <div style="display:flex;justify-content:space-between"><span>Dibuat oleh</span><strong style="color:var(--text)">Sylvan</strong></div>
@@ -1499,6 +1500,16 @@ function tick() {
 // ═══════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════
+
+// Viewport height fix — Chrome Android < 108 & Safari fallback
+function setVh() {
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', vh + 'px');
+}
+setVh();
+window.addEventListener('resize', setVh);
+window.addEventListener('orientationchange', () => setTimeout(setVh, 200));
+
 tick();
 setInterval(tick, 1000);
 renderCats();
