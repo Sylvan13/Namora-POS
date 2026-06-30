@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-<title>NamoraPOS v3.6.1 — Cafe Point of Sale</title>
+<title>NamoraPOS v3.6.6 — Cafe Point of Sale</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
@@ -53,7 +53,8 @@ button{font-family:'DM Sans',sans-serif;cursor:pointer}
 .page.active{display:flex}
 .page#page-setting.active,
 .page#page-rekap.active,
-.page#page-analisa.active{overflow-y:auto;-webkit-overflow-scrolling:touch}
+.page#page-analisa.active,
+.page#page-cashflow.active{overflow-y:auto;-webkit-overflow-scrolling:touch}
 
 /* KASIR */
 .kasir-left{flex:1;padding:1.25rem;overflow-y:auto;-webkit-overflow-scrolling:touch;height:100%;min-height:0}
@@ -221,6 +222,90 @@ table.data-table tr:hover td{background:var(--bg)}
   .pay-opt{font-size:10px;padding:5px 2px}
 }
 
+/* ══ CASHFLOW ══ */
+.cashflow-page{flex-direction:column;padding:1.5rem;overflow-y:auto;gap:1.25rem}
+.saldo-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:0.25rem}
+.saldo-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.1rem 1.25rem;position:relative;overflow:hidden}
+.saldo-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.saldo-card.cash::before{background:var(--green)}
+.saldo-card.rek::before{background:var(--info)}
+.saldo-card.total::before{background:var(--accent)}
+.saldo-card .sc-label{font-size:10px;font-weight:600;color:var(--hint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px}
+.saldo-card .sc-val{font-family:'DM Serif Display',serif;font-size:22px;color:var(--accent);margin-bottom:8px;line-height:1.2}
+.saldo-card .sc-val.negative{color:var(--red)}
+.saldo-card .sc-actions{display:flex;gap:5px;flex-wrap:wrap}
+.sc-btn{padding:4px 10px;border-radius:6px;font-size:10px;font-weight:600;border:1px solid;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.12s;white-space:nowrap}
+.sc-btn.plus{border-color:var(--green);color:var(--green);background:var(--green-bg)}
+.sc-btn.plus:hover{background:#c8ead8}
+.sc-btn.minus{border-color:var(--red);color:var(--red);background:var(--red-bg)}
+.sc-btn.minus:hover{background:#f0d0d0}
+.sc-btn.transfer{border-color:var(--info);color:var(--info);background:var(--info-bg)}
+.sc-btn.transfer:hover{background:#ccdff5}
+.cf-action-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.cf-action-bar .btn-dark{display:flex;align-items:center;gap:6px;padding:8px 16px}
+.cf-period-tabs{display:flex;gap:6px;flex-wrap:wrap}
+.cf-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.cf-table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.cf-table-head{padding:0.85rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.cf-table-head h3{font-family:'DM Serif Display',serif;font-size:16px;color:var(--accent)}
+.badge-modal{display:inline-flex;align-items:center;padding:2px 7px;border-radius:999px;font-size:10px;font-weight:500}
+.badge-masuk{background:var(--green-bg);color:var(--green)}
+.badge-keluar{background:var(--red-bg);color:var(--red)}
+.badge-transfer{background:var(--info-bg);color:var(--info)}
+.badge-modal-cat{background:var(--amber-bg);color:var(--amber)}
+/* Nota belanja modal wider */
+.modal-wide{width:480px;max-width:95vw}
+.nota-items-wrap{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:10px}
+.nota-item-row{display:grid;grid-template-columns:1fr 60px 100px 28px;gap:6px;padding:6px 8px;border-bottom:1px solid var(--border);align-items:center}
+.nota-item-row:last-child{border-bottom:none}
+.nota-item-row input{padding:5px 7px;font-family:'DM Sans',sans-serif;font-size:12px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);width:100%}
+.nota-item-row input:focus{outline:none;border-color:var(--border-strong)}
+.nota-item-header{display:grid;grid-template-columns:1fr 60px 100px 28px;gap:6px;padding:5px 8px;background:var(--bg);border-bottom:1px solid var(--border)}
+.nota-item-header span{font-size:9px;font-weight:600;color:var(--hint);text-transform:uppercase;letter-spacing:0.05em}
+.nota-add-row{padding:6px 8px}
+.nota-total-row{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--bg);border-top:1px solid var(--border);border-radius:0 0 var(--radius) var(--radius)}
+.del-row-btn{width:22px;height:22px;border-radius:5px;border:1px solid #e8c0c0;background:var(--red-bg);color:var(--red);font-size:13px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.del-row-btn:hover{background:#f0d0d0}
+.cf-warn{background:var(--amber-bg);border:1px solid #e8d0a0;border-radius:6px;padding:6px 10px;font-size:11px;color:var(--amber);margin-bottom:8px;display:none}
+.cf-warn.show{display:block}
+
+/* ══ EDIT REKAP ══ */
+.edit-rekap-btn{padding:3px 8px;border-radius:5px;border:1px solid var(--border);background:var(--bg);color:var(--muted);font-size:10px;cursor:pointer;transition:all 0.12s;white-space:nowrap}
+.edit-rekap-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--surface)}
+.edited-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:999px;font-size:9px;font-weight:600;background:#fff8e6;color:#b07800;border:1px solid #e8d080;cursor:pointer;white-space:nowrap}
+.edited-badge:hover{background:#ffefc0}
+.history-row{background:var(--bg);border-radius:6px;padding:8px 10px;margin-bottom:6px;font-size:11px}
+.history-row .hr-meta{font-size:10px;color:var(--muted);margin-bottom:4px}
+.history-change{display:flex;gap:6px;align-items:center;font-size:11px;margin-bottom:2px}
+.history-change .hc-field{color:var(--hint);width:90px;flex-shrink:0;font-size:10px}
+.history-change .hc-before{color:var(--red);text-decoration:line-through}
+.history-change .hc-arrow{color:var(--muted);font-size:10px}
+.history-change .hc-after{color:var(--green);font-weight:500}
+.modal-step{font-size:10px;color:var(--muted);margin-bottom:14px;display:flex;gap:8px}
+.modal-step span{padding:2px 8px;border-radius:999px;background:var(--bg);border:1px solid var(--border)}
+.modal-step span.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.edit-section-label{font-size:9px;font-weight:700;color:var(--hint);text-transform:uppercase;letter-spacing:0.07em;margin:12px 0 6px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.edit-static-row{display:flex;justify-content:space-between;padding:4px 0;font-size:12px}
+.edit-static-row .esr-label{color:var(--muted)}
+.edit-static-row .esr-val{font-weight:500;color:var(--text)}
+.edit-item-row{display:grid;grid-template-columns:1fr 55px 95px 26px;gap:5px;padding:5px 7px;border-bottom:1px solid var(--border);align-items:center}
+.edit-item-row:last-child{border-bottom:none}
+.edit-item-row input{padding:4px 6px;font-family:'DM Sans',sans-serif;font-size:12px;border:1px solid var(--border);border-radius:5px;background:var(--bg);color:var(--text);width:100%}
+.edit-item-row input:focus{outline:none;border-color:var(--border-strong)}
+.edit-total-preview{background:var(--bg);border-radius:6px;padding:8px 10px;margin-top:8px;font-size:12px}
+.edit-total-preview .etp-row{display:flex;justify-content:space-between;margin-bottom:3px}
+.edit-total-preview .etp-row.total{font-weight:700;font-size:14px;color:var(--accent);padding-top:5px;border-top:1px solid var(--border);margin-top:5px}
+.warn-reset{background:#fff8e6;border:1px solid #e8d080;border-radius:6px;padding:6px 10px;font-size:11px;color:#b07800;margin-top:8px}
+.confirm-change-row{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px}
+.confirm-change-row:last-child{border-bottom:none}
+.ccr-field{color:var(--muted);font-size:11px;width:80px;flex-shrink:0;padding-top:1px}
+.ccr-before{color:var(--red);text-decoration:line-through;font-size:11px}
+.ccr-arrow{color:var(--muted);font-size:10px}
+.ccr-after{color:var(--green);font-weight:600}
+.unlock-edit-rekap-bar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--amber-bg);border:1px solid #e8d080;border-radius:var(--radius);font-size:11px;color:#b07800;margin-bottom:8px}
+.unlock-edit-rekap-bar button{padding:4px 10px;border-radius:5px;border:1px solid #e8d080;background:#fff8e6;color:#b07800;font-size:10px;font-weight:600;cursor:pointer}
+.unlock-edit-rekap-bar button:hover{background:#ffefc0}
+
 /* RECEIPT PRINT 58mm */
 .receipt-area{display:none}
 @media print{
@@ -256,7 +341,7 @@ table.data-table tr:hover td{background:var(--bg)}
 <div class="sidebar">
   <div class="sidebar-brand">
     <h1>NamoraPOS</h1>
-    <p>Cafe Point of Sale v3.6</p>
+    <p>Cafe Point of Sale v3.6.6</p>
   </div>
   <nav class="sidebar-nav">
     <div class="nav-item active" onclick="showPage('kasir')" id="nav-kasir">
@@ -268,6 +353,9 @@ table.data-table tr:hover td{background:var(--bg)}
     </div>
     <div class="nav-item" onclick="showPage('analisa')" id="nav-analisa">
       <span class="nav-icon">📊</span> Analisa
+    </div>
+    <div class="nav-item" onclick="showPage('cashflow')" id="nav-cashflow">
+      <span class="nav-icon">💰</span> Cashflow
     </div>
   </nav>
   <div class="nav-item nav-setting" onclick="showPage('setting')" id="nav-setting">
@@ -343,6 +431,7 @@ table.data-table tr:hover td{background:var(--bg)}
           <div class="pay-opt" id="pay-shopeefood" onclick="selectPay('shopeefood')">🟠 ShopeeFood</div>
         </div>
         <div class="online-note" id="onlineNote">+25% surcharge ditambahkan untuk order online</div>
+        <div class="online-note" id="qrisNote" style="border-color:#c0b0e0;background:var(--purple-bg);color:var(--purple)">📱 Potongan QRIS dapat diisi di halaman Rekap</div>
         <button class="print-btn" id="printBtn" onclick="processOrder()" disabled>🖨️ Print nota & simpan</button>
         <button class="clear-btn" onclick="clearCart()">Batal / Kosongkan</button>
       </div>
@@ -360,6 +449,11 @@ table.data-table tr:hover td{background:var(--bg)}
         <div class="header-actions">
           <button class="btn" onclick="exportCSV()">⬇ Export CSV</button>
         </div>
+      </div>
+      <!-- Bar status edit rekap -->
+      <div id="editRekapBar" style="display:none;align-items:center;gap:8px;padding:8px 12px;background:var(--amber-bg);border:1px solid #e8d080;border-radius:var(--radius);font-size:11px;color:#b07800;margin-bottom:4px">
+        ✏️ Mode Edit Rekap aktif — klik tombol <strong>Edit</strong> pada baris transaksi
+        <button onclick="editRekapLocked=true;updateEditRekapUI();renderRekap()" style="margin-left:auto;padding:3px 10px;border-radius:5px;border:1px solid #e8d080;background:#fff8e6;color:#b07800;font-size:10px;font-weight:600;cursor:pointer">🔒 Lock</button>
       </div>
       <div class="period-tabs">
         <button class="period-tab" onclick="setRekapPeriod('kemarin')" id="rtab-kemarin">Kemarin</button>
@@ -388,6 +482,7 @@ table.data-table tr:hover td{background:var(--bg)}
                 <th style="text-align:right">Total Nota</th>
                 <th style="text-align:right">Potongan</th>
                 <th style="text-align:right">Diterima</th>
+                <th style="text-align:center">Aksi</th>
               </tr>
             </thead>
             <tbody id="rekapTbody"></tbody>
@@ -445,7 +540,7 @@ table.data-table tr:hover td{background:var(--bg)}
   <div class="page" id="page-setting">
     <div class="rekap-page" style="flex:1">
       <div class="page-header">
-        <div class="page-title"><h2>Setting</h2><p>Konfigurasi NamoraPOS v3.6</p></div>
+        <div class="page-title"><h2>Setting</h2><p>Konfigurasi NamoraPOS v3.6.6</p></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;max-width:800px">
 
@@ -457,6 +552,17 @@ table.data-table tr:hover td{background:var(--bg)}
             🔒 Status: TERKUNCI
           </div>
           <button id="lockToggleBtn" class="btn" style="width:100%;padding:10px;font-size:13px" onclick="toggleLock()">🔓 Unlock Edit Menu</button>
+          <div style="font-size:10px;color:var(--hint);margin-top:8px">Kunci otomatis kembali saat berpindah halaman.</div>
+        </div>
+
+        <!-- EDIT REKAP -->
+        <div class="analisa-card" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem">
+          <h3 style="font-family:'DM Serif Display',serif;font-size:17px;color:var(--accent);margin-bottom:0.35rem">Mode Edit Rekap</h3>
+          <p style="font-size:11px;color:var(--hint);margin-bottom:1rem">Unlock untuk mengaktifkan tombol edit transaksi di halaman Rekap.</p>
+          <div id="editRekapStatus" style="font-size:13px;font-weight:500;margin-bottom:1rem;padding:8px 12px;border-radius:var(--radius);background:var(--red-bg);color:var(--red);border:1px solid #e8c0c0">
+            🔒 Status: TERKUNCI
+          </div>
+          <button id="editRekapToggleBtn" class="btn" style="width:100%;padding:10px;font-size:13px" onclick="toggleEditRekap()">🔓 Unlock Edit Rekap</button>
           <div style="font-size:10px;color:var(--hint);margin-top:8px">Kunci otomatis kembali saat berpindah halaman.</div>
         </div>
 
@@ -498,7 +604,7 @@ table.data-table tr:hover td{background:var(--bg)}
         <div class="analisa-card" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem">
           <h3 style="font-family:'DM Serif Display',serif;font-size:17px;color:var(--accent);margin-bottom:0.35rem">Informasi Aplikasi</h3>
           <div style="font-size:12px;color:var(--muted);line-height:2.2">
-            <div style="display:flex;justify-content:space-between"><span>Versi</span><strong style="color:var(--text)">v3.6</strong></div>
+            <div style="display:flex;justify-content:space-between"><span>Versi</span><strong style="color:var(--text)">v3.6.6</strong></div>
             <div style="display:flex;justify-content:space-between"><span>Total Transaksi</span><strong id="totalTxSetting" style="color:var(--text)">0</strong></div>
             <div style="display:flex;justify-content:space-between"><span>Data disimpan di</span><strong style="color:var(--text)">Browser lokal</strong></div>
             <div style="display:flex;justify-content:space-between"><span>Dibuat oleh</span><strong style="color:var(--text)">Sylvan</strong></div>
@@ -523,6 +629,104 @@ table.data-table tr:hover td{background:var(--bg)}
     </div>
   </div>
 
+  <!-- ══ CASHFLOW ══ -->
+  <div class="page" id="page-cashflow">
+    <div class="cashflow-page" style="flex:1">
+
+      <!-- HEADER -->
+      <div class="page-header" style="margin-bottom:0">
+        <div class="page-title">
+          <h2>Cashflow</h2>
+          <p id="cfSubtitle">Manajemen arus kas</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn" onclick="exportCfCSV()">⬇ Export CSV</button>
+        </div>
+      </div>
+
+      <!-- A. SALDO CARDS -->
+      <div class="saldo-cards">
+        <div class="saldo-card cash">
+          <div class="sc-label">💵 Saldo Cash</div>
+          <div class="sc-val" id="cfSaldoCash">Rp 0</div>
+          <div class="sc-actions">
+            <button class="sc-btn plus"    onclick="openModalModal('cash','add')">+ Modal</button>
+            <button class="sc-btn minus"   onclick="openModalModal('cash','sub')">− Modal</button>
+            <button class="sc-btn transfer" onclick="openTransferModal('cash')">⇄ Transfer</button>
+          </div>
+        </div>
+        <div class="saldo-card rek">
+          <div class="sc-label">🏦 Saldo Rekening</div>
+          <div class="sc-val" id="cfSaldoRek">Rp 0</div>
+          <div class="sc-actions">
+            <button class="sc-btn plus"    onclick="openModalModal('rek','add')">+ Modal</button>
+            <button class="sc-btn minus"   onclick="openModalModal('rek','sub')">− Modal</button>
+            <button class="sc-btn transfer" onclick="openTransferModal('rek')">⇄ Transfer</button>
+          </div>
+        </div>
+        <div class="saldo-card total">
+          <div class="sc-label">📊 Total Saldo</div>
+          <div class="sc-val" id="cfSaldoTotal">Rp 0</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:4px" id="cfSaldoInfo">Cash + Rekening</div>
+        </div>
+      </div>
+
+      <!-- B. TOMBOL AKSI -->
+      <div class="cf-action-bar">
+        <button class="btn btn-dark cf-action-bar" onclick="openNotaBelanjaModal()">
+          🛒 Nota Belanja
+        </button>
+        <div class="cf-period-tabs" id="cfPeriodTabs">
+          <button class="period-tab" onclick="setCfPeriod('kemarin')" id="cftab-kemarin">Kemarin</button>
+          <button class="period-tab active" onclick="setCfPeriod('hari')" id="cftab-hari">Hari Ini</button>
+          <button class="period-tab" onclick="setCfPeriod('minggu')" id="cftab-minggu">7 Hari</button>
+          <button class="period-tab" onclick="setCfPeriod('bulan')" id="cftab-bulan">Bulan Ini</button>
+          <button class="period-tab" onclick="setCfPeriod('semua')" id="cftab-semua">Semua</button>
+        </div>
+      </div>
+
+      <!-- C. RINGKASAN PERIODE -->
+      <div class="cf-summary" id="cfSummary"></div>
+
+      <!-- D. GRAFIK -->
+      <div class="analisa-card" style="padding:1.1rem">
+        <h3 style="font-family:'DM Serif Display',serif;font-size:16px;color:var(--accent);margin-bottom:1rem">Arus Kas Harian</h3>
+        <div style="position:relative;height:200px"><canvas id="chartCashflow"></canvas></div>
+      </div>
+
+      <!-- E. TABEL CASHFLOW -->
+      <div class="cf-table-wrap">
+        <div class="cf-table-head">
+          <h3>Riwayat Cashflow</h3>
+          <span id="cfCount" style="font-size:11px;color:var(--hint)"></span>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>No/Ref</th>
+                <th>Tanggal</th>
+                <th>Waktu</th>
+                <th>Keterangan</th>
+                <th>Kategori</th>
+                <th>Oleh / Toko</th>
+                <th>Kantong</th>
+                <th style="text-align:right">Masuk</th>
+                <th style="text-align:right">Keluar</th>
+                <th style="text-align:right">Saldo Cash</th>
+                <th style="text-align:right">Saldo Rek</th>
+                <th style="text-align:center">Aksi</th>
+                <th style="text-align:center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="cfTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
 </div><!-- /main -->
 <div id="modalWrap"></div>
 <div class="receipt-area" id="receiptArea"></div>
@@ -535,7 +739,15 @@ const MENU_KEY       = 'namorapos_menu';
 const ORDER_KEY      = 'namorapos_orders';
 const CTR_KEY        = 'namorapos_orderctr';
 const DAILY_CTR_KEY  = 'namorapos_dailyctr';   // {date, count}
-const POTONG_KEY     = 'namorapos_potong';      // {orderId: amount}
+const POTONG_KEY     = 'namorapos_potong';      // {potongKey: amount}
+const CF_KEY         = 'namorapos_cashflow';    // cashflow entries[]
+const CF_NOTA_CTR    = 'namorapos_notactr';     // {YYYY-MM: count}
+
+// potongKey = orderId + "_" + ts (timestamp ms) — truly unique, tidak collision setelah reset
+// Fallback ke isoDate untuk order lama yang belum punya field ts
+function getPotongKey(o) {
+  return (o.orderId || '') + '_' + (o.ts || o.isoDate || o.date || '');
+}
 
 // ⚠️  PASSWORD — GANTI DI BARIS INI:
 const ADMIN_PASSWORD = 'NamorabySylvan@13';  // <── BARIS 512 — GANTI PASSWORD DI SINI
@@ -566,37 +778,47 @@ let menu = JSON.parse(localStorage.getItem(MENU_KEY) || 'null') || [
   {id:17, name:'Ice Caramel Sea Salt Latte',      price:20000, cat:'Espresso Base'},
   {id:18, name:'Butterscotch Sea Salt Latte',     price:18000, cat:'Espresso Base'},
   {id:19, name:'Ice Butterscotch Sea Salt Latte', price:20000, cat:'Espresso Base'},
-  {id:20, name:'Kopi Tubruk',                     price:8000,  cat:'Coffee Non Espresso'},
-  {id:21, name:'Kopi Tubruk Susu',                price:10000, cat:'Coffee Non Espresso'},
-  {id:22, name:'Ice Kopi Tubruk Susu',            price:12000, cat:'Coffee Non Espresso'},
-  {id:23, name:'V60 / Pour Over',                 price:18000, cat:'Coffee Non Espresso'},
-  {id:24, name:'Ice V60 / Pour Over',             price:20000, cat:'Coffee Non Espresso'},
-  {id:25, name:'Vietnam Drip',                    price:12000, cat:'Coffee Non Espresso'},
-  {id:26, name:'Ice Vietnam Drip',                price:14000, cat:'Coffee Non Espresso'},
-  {id:27, name:'Hot Tea',                         price:5000,  cat:'Non Coffee'},
-  {id:28, name:'Ice Tea',                         price:6000,  cat:'Non Coffee'},
-  {id:29, name:'Milk Tea',                        price:14000, cat:'Non Coffee'},
-  {id:30, name:'Ice Milk Tea',                    price:15000, cat:'Non Coffee'},
-  {id:31, name:'Chocolate',                       price:16000, cat:'Non Coffee'},
-  {id:32, name:'Ice Chocolate',                   price:18000, cat:'Non Coffee'},
-  {id:33, name:'Hot Orange',                      price:15000, cat:'Non Coffee'},
-  {id:34, name:'Ice Hot Orange',                  price:17000, cat:'Non Coffee'},
-  {id:35, name:'Speciality Tea',                  price:15000, cat:'Non Coffee'},
-  {id:36, name:'Seasonal Juice',                  price:18000, cat:'Non Coffee'},
-  {id:37, name:'Nasi Goreng Telur',               price:18000, cat:'Food'},
-  {id:38, name:'Nasi Goreng Katsu',               price:18000, cat:'Food'},
-  {id:39, name:'Nasi Goreng Bakso',               price:18000, cat:'Food'},
-  {id:40, name:'Nasi Goreng Sosis',               price:18000, cat:'Food'},
-  {id:41, name:'Rice Bowl Katsu',                 price:15000, cat:'Food'},
-  {id:42, name:'Mie Goreng',                      price:12000, cat:'Food'},
-  {id:43, name:'French Fries',                    price:12000, cat:'Snack'},
-  {id:44, name:'Nugget',                          price:15000, cat:'Snack'},
-  {id:45, name:'Basreng',                         price:15000, cat:'Snack'},
-  {id:46, name:'Sosis',                           price:15000, cat:'Snack'},
-  {id:47, name:'Mix Plater',                      price:20000, cat:'Snack'},
-  {id:48, name:'Pisang Goreng',                   price:15000, cat:'Snack'},
-  {id:49, name:'Donut',                           price:15000, cat:'Snack'},
-  {id:50, name:'Roti Bakar',                      price:15000, cat:'Snack'},
+  {id:20, name:'Custom Beans',                    price:2500,  cat:'Espresso Base'},
+  {id:21, name:'Kopi Tubruk',                     price:8000,  cat:'Coffee Non Espresso'},
+  {id:22, name:'Kopi Tubruk Susu',                price:10000, cat:'Coffee Non Espresso'},
+  {id:23, name:'Ice Kopi Tubruk Susu',            price:12000, cat:'Coffee Non Espresso'},
+  {id:24, name:'V60 / Pour Over',                 price:18000, cat:'Coffee Non Espresso'},
+  {id:25, name:'Ice V60 / Pour Over',             price:20000, cat:'Coffee Non Espresso'},
+  {id:26, name:'Vietnam Drip',                    price:12000, cat:'Coffee Non Espresso'},
+  {id:27, name:'Ice Vietnam Drip',                price:14000, cat:'Coffee Non Espresso'},
+  {id:28, name:'Hot Tea',                         price:5000,  cat:'Non Coffee'},
+  {id:29, name:'Ice Tea',                         price:6000,  cat:'Non Coffee'},
+  {id:30, name:'Milk Tea',                        price:14000, cat:'Non Coffee'},
+  {id:31, name:'Ice Milk Tea',                    price:15000, cat:'Non Coffee'},
+  {id:32, name:'Chocolate',                       price:16000, cat:'Non Coffee'},
+  {id:33, name:'Ice Chocolate',                   price:18000, cat:'Non Coffee'},
+  {id:34, name:'Hot Orange',                      price:15000, cat:'Non Coffee'},
+  {id:35, name:'Ice Hot Orange',                  price:17000, cat:'Non Coffee'},
+  {id:36, name:'Speciality Tea',                  price:15000, cat:'Non Coffee'},
+  {id:37, name:'Seasonal Juice',                  price:18000, cat:'Non Coffee'},
+  {id:38, name:'Lemon Tea',                       price:15000, cat:'Non Coffee'},
+  {id:39, name:'Ice Lemon Tea',                   price:17000, cat:'Non Coffee'},
+  {id:40, name:'Macha',                           price:18000, cat:'Non Coffee'},
+  {id:41, name:'Ice Macha',                       price:18000, cat:'Non Coffee'},
+  {id:41, name:'Mint Tea',                        price:15000, cat:'Non Coffee'},
+  {id:42, name:'Nasi Goreng Telur',               price:18000, cat:'Food'},
+  {id:43, name:'Nasi Goreng Katsu',               price:18000, cat:'Food'},
+  {id:44, name:'Nasi Goreng Bakso',               price:18000, cat:'Food'},
+  {id:45, name:'Nasi Goreng Sosis',               price:18000, cat:'Food'},
+  {id:46, name:'Rice Bowl Katsu',                 price:15000, cat:'Food'},
+  {id:47, name:'Mie Nyemek',                      price:12000, cat:'Food'},
+  {id:48, name:'Sosis',                           price:5000,  cat:'Toping'},
+  {id:49, name:'Telur',                           price:4000,  cat:'Toping'},
+  {id:50, name:'Nugget',                          price:5000,  cat:'Toping'},
+  {id:51, name:'Nasi Putih',                      price:5000,  cat:'Toping'},
+  {id:52, name:'French Fries',                    price:12000, cat:'Snack'},
+  {id:53, name:'Nugget',                          price:15000, cat:'Snack'},
+  {id:54, name:'Basreng',                         price:15000, cat:'Snack'},
+  {id:55, name:'Sosis',                           price:15000, cat:'Snack'},
+  {id:56, name:'Mix Plater',                      price:20000, cat:'Snack'},
+  {id:57, name:'Pisang Goreng',                   price:15000, cat:'Snack'},
+  {id:58, name:'Donut',                           price:15000, cat:'Snack'},
+  {id:59, name:'Roti Bakar',                      price:15000, cat:'Snack'},
 ];
 
 // ═══════════════════════════════════════════════════════
@@ -614,6 +836,17 @@ let rekapPeriod  = 'hari';
 let analisaDays  = '7';
 let chartRevInst = null;
 let chartPayInst = null;
+
+// ── CASHFLOW STATE ──────────────────────────────────────
+let cfEntries    = JSON.parse(localStorage.getItem(CF_KEY) || '[]');
+let cfPeriod     = 'hari';
+let chartCfInst  = null;
+let editRekapLocked = true;   // unlock via password di Setting
+
+// Kategori pengeluaran
+const CF_CATS = ['Bahan Baku','Operasional','Peralatan','Lain-lain'];
+
+const saveCf = () => localStorage.setItem(CF_KEY, JSON.stringify(cfEntries));
 
 // ═══════════════════════════════════════════════════════
 // HELPERS
@@ -659,9 +892,9 @@ function surchargeCalc(subtotal) {
   return isOnline(payMethod) ? Math.round(subtotal * ONLINE_SURCHARGE) : 0;
 }
 
-// Net received = total nota minus potongan online (if any)
+// Net received = total nota minus potongan (jika ada)
 function netReceived(o) {
-  const pot = potongMap[o.orderId];
+  const pot = potongMap[getPotongKey(o)];
   if (pot === undefined || pot === null || pot === '') return o.total;
   return o.total - parseInt(pot);
 }
@@ -675,13 +908,19 @@ function showPage(name) {
     menuLocked = true;
     updateLockUI();
   }
+  // Auto-lock edit rekap when leaving rekap
+  if (name !== 'rekap' && !editRekapLocked) {
+    editRekapLocked = true;
+    updateEditRekapUI();
+  }
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
   document.getElementById('nav-' + name).classList.add('active');
-  if (name === 'rekap')   renderRekap();
-  if (name === 'analisa') renderAnalisa();
-  if (name === 'setting') renderSetting();
+  if (name === 'rekap')     renderRekap();
+  if (name === 'analisa')   renderAnalisa();
+  if (name === 'setting')   renderSetting();
+  if (name === 'cashflow')  renderCashflow();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -717,6 +956,31 @@ function updateLockUI() {
     if (status) { status.style.background='var(--green-bg)'; status.style.color='var(--green)'; status.style.borderColor='#b0d8c0'; status.textContent='🔓 Status: UNLOCKED'; }
     if (btn) btn.textContent='🔒 Lock Edit Menu';
   }
+}
+
+function updateEditRekapUI() {
+  const s = document.getElementById('editRekapStatus');
+  const b = document.getElementById('editRekapToggleBtn');
+  if (editRekapLocked) {
+    if (s) { s.style.background='var(--red-bg)'; s.style.color='var(--red)'; s.style.borderColor='#e8c0c0'; s.textContent='🔒 Status: TERKUNCI'; }
+    if (b) b.textContent='🔓 Unlock Edit Rekap';
+  } else {
+    if (s) { s.style.background='var(--green-bg)'; s.style.color='var(--green)'; s.style.borderColor='#b0d8c0'; s.textContent='🔓 Status: TERBUKA'; }
+    if (b) b.textContent='🔒 Lock Edit Rekap';
+  }
+}
+
+function toggleEditRekap() {
+  if (editRekapLocked) {
+    const pw = prompt('Masukkan password untuk unlock Edit Rekap:');
+    if (pw === null) return;
+    if (pw !== ADMIN_PASSWORD) { alert('Password salah.'); return; }
+    editRekapLocked = false;
+  } else {
+    editRekapLocked = true;
+  }
+  updateEditRekapUI();
+  renderSetting();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -765,6 +1029,8 @@ function selectPay(method) {
   if (isOnline(method)) selectDine('takeaway');
   const onlineNote = document.getElementById('onlineNote');
   onlineNote.className = 'online-note' + (isOnline(method) ? ' show' : '');
+  const qrisNote = document.getElementById('qrisNote');
+  qrisNote.className = 'online-note' + (method === 'qris' ? ' show' : '');
   renderCart();
 }
 
@@ -907,6 +1173,7 @@ async function processOrder() {
   const orderData = {
     orderId,
     dailyNum,
+    ts: now.getTime(),
     date: now.toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric'}),
     time: now.toLocaleTimeString('id-ID'),
     isoDate: isoDate(now),
@@ -920,6 +1187,7 @@ async function processOrder() {
   };
   orders.push(orderData);
   saveOrders();
+  recordCfFromOrder(orderData);
   buildReceipt(orderData);
   window.print();
   clearCart();
@@ -1002,12 +1270,8 @@ function removeLogo() {
 // RESET / HAPUS
 // ═══════════════════════════════════════════════════════
 function resetCounter() {
-  if (!confirm('Reset nomor nota ke 0000001?\nData transaksi tidak akan terhapus.\n\nCatatan: data potongan online akan ikut direset untuk menghindari konflik nomor nota.')) return;
+  if (!confirm('Reset nomor nota ke 0000001?\nData transaksi tidak akan terhapus.')) return;
   localStorage.setItem(CTR_KEY, '0');
-  // BUGFIX: clear potongMap to prevent old potongan bleeding into new orders
-  // that happen to get the same orderId after counter reset
-  potongMap = {};
-  savePotong();
   renderSetting();
   alert('Nomor nota berhasil direset.');
 }
@@ -1027,8 +1291,10 @@ function hapusSemuaData() {
   // Hanya hapus transaksi, counter & potong — menu/logo TIDAK disentuh
   localStorage.removeItem(ORDER_KEY);
   localStorage.removeItem(POTONG_KEY);
+  localStorage.removeItem(CF_KEY);
+  localStorage.removeItem(CF_NOTA_CTR);
   localStorage.setItem(CTR_KEY, '0');
-  orders = []; potongMap = {};
+  orders = []; potongMap = {}; cfEntries = [];
   document.getElementById('deletePassword').value = '';
   msg.innerHTML = '<span style="color:var(--green)">✓ Data transaksi berhasil dihapus.</span>';
   renderSetting();
@@ -1130,38 +1396,57 @@ function renderRekap() {
     </div>`;
 
   document.getElementById('rekapCount').textContent = txCount + ' transaksi';
+
+  // Bar status edit rekap
+  const editBar = document.getElementById('editRekapBar');
+  if (editBar) editBar.style.display = editRekapLocked ? 'none' : 'flex';
+
   const tbody = document.getElementById('rekapTbody');
   if (!filtered.length) {
-    tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><div class="empty-icon">📋</div>Belum ada transaksi</div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state"><div class="empty-icon">📋</div>Belum ada transaksi</div></td></tr>`;
     return;
   }
 
   const sorted = [...filtered].reverse();
   tbody.innerHTML = sorted.map(o => {
-    const pot        = potongMap[o.orderId];
+    const pot        = potongMap[getPotongKey(o)];
     const hasPotong  = pot !== undefined && pot !== null && pot !== '';
     const netAmt     = hasPotong ? o.total - parseInt(pot) : o.total;
     const isOL       = isOnline(o.payment);
+    const isQRIS     = o.payment === 'qris';
     const payLabels  = {cash:'CASH',qris:'QRIS',grabfood:'GRABFOOD',gofood:'GOFOOD',shopeefood:'SHOPEEFOOD'};
     const dLabel     = o.dineType === 'takeaway' ? '🛍' : '🪑';
+    const wasEdited  = o.editHistory && o.editHistory.length > 0;
 
-    // Potongan cell
+    // Potongan cell — aktif untuk online DAN QRIS
     let potCell = '';
-    if (isOL) {
+    if (isOL || isQRIS) {
       if (hasPotong) {
         potCell = `<span style="color:var(--red)">${fmt(pot)}</span>
-          <button class="potong-btn" style="margin-left:4px" onclick="editPotong('${o.orderId}',${pot})">✏️</button>`;
+          <button class="potong-btn" style="margin-left:4px" onclick="editPotong('${getPotongKey(o)}',${pot})">✏️</button>`;
       } else {
         potCell = `<span class="warn-dot"></span>
-          <button class="potong-btn" onclick="editPotong('${o.orderId}',0)">Isi Potongan</button>`;
+          <button class="potong-btn" onclick="editPotong('${getPotongKey(o)}',null)">Isi Potongan</button>`;
       }
     } else {
       potCell = '<span style="color:var(--hint);font-size:10px">—</span>';
     }
 
+    // Kolom aksi edit
+    const editBtn = !editRekapLocked
+      ? `<button class="edit-rekap-btn" onclick="startEditRekap('${o.orderId}')">✏️ Edit</button>`
+      : '';
+    const editedBadge = wasEdited
+      ? `<span class="edited-badge" onclick="showEditHistory('${o.orderId}')">✏️ Edited (${o.editHistory.length}x)</span>`
+      : '';
+
     return `
       <tr>
-        <td><strong>${o.orderId}</strong><br><span style="font-size:10px;color:var(--hint)">ke-${o.dailyNum||'—'}</span></td>
+        <td>
+          <strong>${o.orderId}</strong><br>
+          <span style="font-size:10px;color:var(--hint)">ke-${o.dailyNum||'—'}</span><br>
+          ${editedBadge}
+        </td>
         <td>${o.date}</td>
         <td>${o.time}</td>
         <td>${o.customer||'—'}</td>
@@ -1170,18 +1455,22 @@ function renderRekap() {
         <td><span class="badge badge-${o.payment||'cash'}">${payLabels[o.payment]||o.payment}</span></td>
         <td style="text-align:right;font-weight:500">${fmt(o.total)}</td>
         <td style="text-align:right">${potCell}</td>
-        <td style="text-align:right;font-weight:600;color:var(--green)">${hasPotong||!isOL?fmt(netAmt):'<span style="color:var(--hint)">—</span>'}</td>
+        <td style="text-align:right;font-weight:600;color:var(--green)">${hasPotong || (!isOL && !isQRIS) ? fmt(netAmt) : '<span style="color:var(--hint)">—</span>'}</td>
+        <td style="text-align:center">${editBtn}</td>
       </tr>`;
   }).join('');
 }
 
-// Potongan online — modal dengan format ribuan otomatis
-function editPotong(orderId, current) {
+// Potongan — modal dengan format ribuan otomatis
+// potongKey = getPotongKey(o) = orderId_isoDate (unik absolut)
+function editPotong(potongKey, current) {
+  // Tampilkan orderId saja (bagian sebelum underscore pertama terakhir)
+  const displayId = potongKey.split('_')[0];
   document.getElementById('modalWrap').innerHTML = `
     <div class="modal-overlay" onclick="if(event.target===this)closeModal()">
       <div class="modal">
-        <h3>Potongan Online</h3>
-        <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Order : <strong>${orderId}</strong></div>
+        <h3>Potongan</h3>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Order : <strong>${displayId}</strong></div>
         <label>Nilai Potongan (Rp)</label>
         <div style="position:relative;margin-bottom:6px">
           <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--muted);pointer-events:none">Rp</span>
@@ -1191,15 +1480,15 @@ function editPotong(orderId, current) {
         <div style="font-size:10px;color:var(--hint);margin-bottom:14px">Ketik angka, titik ribuan otomatis muncul.</div>
         <div class="modal-btns">
           <button class="btn" onclick="closeModal()">Batal</button>
-          <button class="btn btn-dark" onclick="savePotongModal('${orderId}')">Simpan</button>
+          <button class="btn btn-dark" onclick="savePotongModal('${potongKey}')">Simpan</button>
         </div>
       </div>
     </div>`;
 
   const inp = document.getElementById('potongInput');
 
-  // Set initial value formatted
-  if (current) inp.value = formatRibuan(current);
+  // FIX: cek null/undefined dengan benar — bukan truthy check agar nilai 0 pun bisa diisi
+  if (current !== null && current !== undefined) inp.value = formatRibuan(current);
 
   inp.addEventListener('keydown', function(e) {
     // Allow: backspace, delete, tab, escape, enter, arrows, home, end
@@ -1230,12 +1519,13 @@ function formatRibuan(val) {
   return n.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
 
-function savePotongModal(orderId) {
+function savePotongModal(potongKey) {
   const raw = (document.getElementById('potongInput').value || '').replace(/\./g,'');
   const parsed = parseInt(raw);
   if (isNaN(parsed) || parsed < 0) { alert('Nilai tidak valid.'); return; }
-  potongMap[orderId] = parsed;
+  potongMap[potongKey] = parsed;
   savePotong();
+  syncCfPotongan(potongKey, parsed); // update cashflow entry ke nilai net
   closeModal();
   renderRekap();
 }
@@ -1245,7 +1535,7 @@ function exportCSV() {
   if (!filtered.length) { alert('Tidak ada data untuk diekspor.'); return; }
   const rows = [['No. Order','Order ke-','Tanggal','Waktu','Customer','Tipe','Item','Pembayaran','Total Nota','Potongan Online','Net Diterima']];
   filtered.forEach(o => {
-    const pot = potongMap[o.orderId] || 0;
+    const pot = potongMap[getPotongKey(o)] || 0;
     o.items.forEach((item,idx) => {
       rows.push([
         o.orderId, o.dailyNum||'', o.date, o.time, o.customer||'—',
@@ -1408,9 +1698,9 @@ function renderAnalisa() {
     const plOrders  = filtered.filter(o=>o.payment===p.key);
     const txN       = plOrders.length;
     const grossAmt  = plOrders.reduce((s,o)=>s+o.total, 0);
-    const potAmt    = plOrders.reduce((s,o)=>s+(potongMap[o.orderId]||0), 0);
+    const potAmt    = plOrders.reduce((s,o)=>s+(potongMap[getPotongKey(o)]||0), 0);
     const netAmt    = plOrders.reduce((s,o)=>s+netReceived(o), 0);
-    const pending   = plOrders.filter(o=>potongMap[o.orderId]===undefined||potongMap[o.orderId]==='').length;
+    const pending   = plOrders.filter(o=>potongMap[getPotongKey(o)]===undefined||potongMap[getPotongKey(o)]==='').length;
     const barW      = txN ? Math.round(txN/maxOnlineTx*100) : 0;
     const pctPotong = grossAmt > 0 ? ((potAmt / grossAmt) * 100).toFixed(1) : null;
     // Visual bar for % potongan
@@ -1452,7 +1742,7 @@ function renderAnalisa() {
   }).join('');
 
   const totalOnlineGross = onlinePlatforms.reduce((s,p)=>s+filtered.filter(o=>o.payment===p.key).reduce((ss,o)=>ss+o.total,0),0);
-  const totalOnlinePotong = onlinePlatforms.reduce((s,p)=>s+filtered.filter(o=>o.payment===p.key).reduce((ss,o)=>ss+(potongMap[o.orderId]||0),0),0);
+  const totalOnlinePotong = onlinePlatforms.reduce((s,p)=>s+filtered.filter(o=>o.payment===p.key).reduce((ss,o)=>ss+(potongMap[getPotongKey(o)]||0),0),0);
   const totalOnlineNet = onlinePlatforms.reduce((s,p)=>s+filtered.filter(o=>o.payment===p.key).reduce((ss,o)=>ss+netReceived(o),0),0);
 
   document.getElementById('onlineAnalysisEl').innerHTML = totalOnline === 0
@@ -1506,6 +1796,939 @@ function renderAnalisa() {
 }
 
 // ═══════════════════════════════════════════════════════
+// CASHFLOW — HELPERS
+// ═══════════════════════════════════════════════════════
+
+// Hitung saldo cash & rekening dari semua cfEntries (running balance)
+function calcSaldo() {
+  let cash = 0, rek = 0;
+  cfEntries.forEach(e => {
+    if (e.type === 'modal_add')    { if(e.kantong==='cash') cash+=e.amount; else rek+=e.amount; }
+    if (e.type === 'modal_sub')    { if(e.kantong==='cash') cash-=e.amount; else rek-=e.amount; }
+    if (e.type === 'transfer')     { if(e.from==='cash'){cash-=e.amount;rek+=e.amount;}else{rek-=e.amount;cash+=e.amount;} }
+    if (e.type === 'penjualan_cash')  cash += e.amount;
+    if (e.type === 'penjualan_rek')   rek  += e.amount;
+    if (e.type === 'belanja')      { if(e.kantong==='cash') cash-=e.amount; else rek-=e.amount; }
+  });
+  return {cash, rek};
+}
+
+// Running saldo sampai index tertentu
+function calcSaldoAt(idx) {
+  let cash = 0, rek = 0;
+  for(let i = 0; i <= idx; i++) {
+    const e = cfEntries[i];
+    if (e.type === 'modal_add')    { if(e.kantong==='cash') cash+=e.amount; else rek+=e.amount; }
+    if (e.type === 'modal_sub')    { if(e.kantong==='cash') cash-=e.amount; else rek-=e.amount; }
+    if (e.type === 'transfer')     { if(e.from==='cash'){cash-=e.amount;rek+=e.amount;}else{rek-=e.amount;cash+=e.amount;} }
+    if (e.type === 'penjualan_cash')  cash += e.amount;
+    if (e.type === 'penjualan_rek')   rek  += e.amount;
+    if (e.type === 'belanja')      { if(e.kantong==='cash') cash-=e.amount; else rek-=e.amount; }
+  }
+  return {cash, rek};
+}
+
+// Kode Nota Belanja: B001/06/2026 — reset tiap bulan
+function getNotaCode() {
+  const now   = new Date();
+  const mm    = String(now.getMonth()+1).padStart(2,'0');
+  const yyyy  = now.getFullYear();
+  const key   = `${yyyy}-${mm}`;
+  const store = JSON.parse(localStorage.getItem(CF_NOTA_CTR) || '{}');
+  store[key]  = (store[key] || 0) + 1;
+  localStorage.setItem(CF_NOTA_CTR, JSON.stringify(store));
+  return `B${String(store[key]).padStart(3,'0')}/${mm}/${yyyy}`;
+}
+
+function cfIsoDate(d) { return d.toISOString().slice(0,10); }
+
+function filterCfEntries(period) {
+  const today = cfIsoDate(new Date());
+  const d = new Date(); d.setDate(d.getDate()-1);
+  const yest = cfIsoDate(d);
+  if (period === 'kemarin') return cfEntries.filter(e => e.isoDate === yest);
+  if (period === 'hari')    return cfEntries.filter(e => e.isoDate === today);
+  if (period === 'minggu')  {
+    const cut = new Date(); cut.setDate(cut.getDate()-6);
+    return cfEntries.filter(e => e.isoDate >= cfIsoDate(cut));
+  }
+  if (period === 'bulan')   return cfEntries.filter(e => e.isoDate && e.isoDate.slice(0,7) === today.slice(0,7));
+  return [...cfEntries];
+}
+
+function cfEntryMasuk(e) {
+  if (e.type==='modal_add') return e.amount;
+  if (e.type==='penjualan_cash'||e.type==='penjualan_rek') return e.amount;
+  if (e.type==='transfer') return 0; // transfer adalah netral (internal move)
+  return 0;
+}
+function cfEntryKeluar(e) {
+  if (e.type==='modal_sub') return e.amount;
+  if (e.type==='belanja') return e.amount;
+  return 0;
+}
+
+function cfTypeLabel(e) {
+  const m = {
+    modal_add:      '➕ Tambah Modal',
+    modal_sub:      '➖ Kurang Modal',
+    transfer:       '⇄ Transfer',
+    penjualan_cash: '💵 Penjualan Cash',
+    penjualan_rek:  '📱 Penjualan Non-Cash',
+    belanja:        '🛒 Belanja',
+  };
+  return m[e.type] || e.type;
+}
+
+function cfKantongLabel(e) {
+  if (e.type==='transfer') return `${e.from==='cash'?'Cash':'Rekening'} → ${e.from==='cash'?'Rekening':'Cash'}`;
+  if (e.kantong==='cash') return '💵 Cash';
+  return '🏦 Rekening';
+}
+
+// ═══════════════════════════════════════════════════════
+// CASHFLOW — RENDER
+// ═══════════════════════════════════════════════════════
+function setCfPeriod(p) {
+  cfPeriod = p;
+  document.querySelectorAll('[id^="cftab-"]').forEach(b => b.classList.remove('active'));
+  document.getElementById('cftab-'+p).classList.add('active');
+  renderCashflow();
+}
+
+function renderCashflow() {
+  const {cash, rek} = calcSaldo();
+  const total = cash + rek;
+
+  // Saldo cards
+  const scCash  = document.getElementById('cfSaldoCash');
+  const scRek   = document.getElementById('cfSaldoRek');
+  const scTotal = document.getElementById('cfSaldoTotal');
+  if(scCash)  { scCash.textContent = fmt(cash);   scCash.className  = 'sc-val'+(cash<0?' negative':''); }
+  if(scRek)   { scRek.textContent  = fmt(rek);    scRek.className   = 'sc-val'+(rek<0?' negative':''); }
+  if(scTotal) { scTotal.textContent= fmt(total);  scTotal.className = 'sc-val'+(total<0?' negative':''); }
+
+  const filtered = filterCfEntries(cfPeriod);
+  const labelMap = {kemarin:'Kemarin', hari:'Hari Ini', minggu:'7 Hari Terakhir', bulan:'Bulan Ini', semua:'Semua Waktu'};
+  const el = document.getElementById('cfSubtitle');
+  if(el) el.textContent = labelMap[cfPeriod] + ' — ' + filtered.length + ' entri';
+
+  const totalMasuk  = filtered.reduce((s,e)=>s+cfEntryMasuk(e),0);
+  const totalKeluar = filtered.reduce((s,e)=>s+cfEntryKeluar(e),0);
+  const netPeriode  = totalMasuk - totalKeluar;
+  const totalBelanja= filtered.filter(e=>e.type==='belanja').reduce((s,e)=>s+e.amount,0);
+
+  const cfSumEl = document.getElementById('cfSummary');
+  if(cfSumEl) cfSumEl.innerHTML = `
+    <div class="stat-card">
+      <div class="stat-label">Total Masuk</div>
+      <div class="stat-value" style="color:var(--green)">${fmt(totalMasuk)}</div>
+      <div class="stat-sub">periode ini</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Keluar</div>
+      <div class="stat-value" style="color:var(--red)">${fmt(totalKeluar)}</div>
+      <div class="stat-sub">periode ini</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Net Periode</div>
+      <div class="stat-value" style="color:${netPeriode>=0?'var(--green)':'var(--red)'}">${netPeriode>=0?'+':''}${fmt(netPeriode)}</div>
+      <div class="stat-sub">masuk − keluar</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Belanja</div>
+      <div class="stat-value" style="font-size:16px">${fmt(totalBelanja)}</div>
+      <div class="stat-sub">${filtered.filter(e=>e.type==='belanja').length} nota</div>
+    </div>`;
+
+  // Grafik arus kas harian
+  const dayMasuk={}, dayKeluar={};
+  filtered.forEach(e => {
+    if(!e.isoDate) return;
+    dayMasuk[e.isoDate]  = (dayMasuk[e.isoDate]||0)  + cfEntryMasuk(e);
+    dayKeluar[e.isoDate] = (dayKeluar[e.isoDate]||0) + cfEntryKeluar(e);
+  });
+  const allDays = [...new Set([...Object.keys(dayMasuk),...Object.keys(dayKeluar)])].sort();
+  const cfLabels = allDays.map(d=>{const[y,m,dd]=d.split('-');return dd+'/'+m;});
+
+  setTimeout(()=>{
+    const ctx = document.getElementById('chartCashflow')?.getContext('2d');
+    if(ctx){
+      if(chartCfInst) chartCfInst.destroy();
+      chartCfInst = new Chart(ctx,{
+        type:'bar',
+        data:{
+          labels: cfLabels.length ? cfLabels : ['Belum ada data'],
+          datasets:[
+            {label:'Masuk', data:allDays.map(d=>dayMasuk[d]||0),  backgroundColor:'#1D6A47', borderRadius:4, borderSkipped:false},
+            {label:'Keluar',data:allDays.map(d=>dayKeluar[d]||0), backgroundColor:'#8B2020', borderRadius:4, borderSkipped:false},
+          ]
+        },
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8}}},
+          scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'#EEE8DE'},ticks:{font:{size:10},callback:v=>'Rp'+v.toLocaleString('id-ID')}}}}
+      });
+    }
+  },50);
+
+  // Tabel
+  const cfCountEl = document.getElementById('cfCount');
+  if(cfCountEl) cfCountEl.textContent = filtered.length + ' entri';
+  const tbody = document.getElementById('cfTbody');
+  if(!tbody) return;
+  if(!filtered.length){
+    tbody.innerHTML=`<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">💰</div>Belum ada data cashflow</div></td></tr>`;
+    return;
+  }
+  // Render dari terbaru, hitung saldo running berdasarkan index di cfEntries
+  const sortedIdx = filtered.map(e=>cfEntries.indexOf(e)).sort((a,b)=>b-a);
+  tbody.innerHTML = sortedIdx.map(idx=>{
+    const e = cfEntries[idx];
+    const {cash:sc, rek:sr} = calcSaldoAt(idx);
+    const masuk  = cfEntryMasuk(e);
+    const keluar = cfEntryKeluar(e);
+    const isTransfer = e.type === 'transfer';
+    const ref = e.ref || e.type;
+    const keterangan = e.type==='transfer'
+      ? `Transfer ${e.from==='cash'?'Cash → Rekening':'Rekening → Cash'}${e.memo?' · '+e.memo:''}`
+      : (e.keterangan || cfTypeLabel(e)) + (e.memo?' · '+e.memo:'');
+    return `<tr>
+      <td><strong style="font-size:11px">${ref}</strong></td>
+      <td>${e.date||''}</td>
+      <td style="font-size:10px;color:var(--muted)">${e.time||''}</td>
+      <td style="max-width:200px;font-size:11px">${keterangan}</td>
+      <td>${e.cat?`<span class="badge badge-modal-cat">${e.cat}</span>`:'<span style="color:var(--hint);font-size:10px">—</span>'}</td>
+      <td style="font-size:11px;color:var(--muted)">${e.oleh||''}${e.toko?' · '+e.toko:''}</td>
+      <td style="font-size:11px">${cfKantongLabel(e)}</td>
+      <td style="text-align:right;color:var(--green);font-weight:500">
+        ${masuk>0 ? (e.pendingPotongan
+          ? `<span style="color:var(--amber)">${fmt(masuk)}</span><br><span style="font-size:9px;color:var(--amber)">⏳ belum dipotong</span>`
+          : fmt(masuk))
+        : '—'}
+      </td>
+      <td style="text-align:right;color:var(--red);font-weight:500">${keluar>0?fmt(keluar):'—'}</td>
+      <td style="text-align:right;font-size:11px;color:${sc<0?'var(--red)':'var(--text)'}">${fmt(sc)}</td>
+      <td style="text-align:right;font-size:11px;color:${sr<0?'var(--red)':'var(--text)'}">${fmt(sr)}</td>
+      <td style="text-align:center">${e.type==='belanja'?`<button class="edit-rekap-btn" onclick="showDetailBelanja(${idx})">🧾 Detail</button>`:''}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// CASHFLOW — MODAL TAMBAH/KURANG MODAL
+// ═══════════════════════════════════════════════════════
+function openModalModal(kantong, mode) {
+  const isAdd   = mode === 'add';
+  const label   = kantong === 'cash' ? 'Cash' : 'Rekening';
+  const title   = isAdd ? `Tambah Modal — ${label}` : `Kurang Modal — ${label}`;
+  const color   = isAdd ? 'var(--green)' : 'var(--red)';
+  document.getElementById('modalWrap').innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this)closeModal()">
+      <div class="modal">
+        <h3>${title}</h3>
+        <label>Jumlah (Rp)</label>
+        <input id="mfJumlah" type="text" inputmode="numeric" placeholder="0" style="text-align:right"/>
+        <label>Memo / Keterangan</label>
+        <input id="mfMemo" placeholder="Opsional"/>
+        <div class="modal-btns">
+          <button class="btn" onclick="closeModal()">Batal</button>
+          <button class="btn btn-dark" style="background:${color};border-color:${color}" onclick="saveModalModal('${kantong}','${mode}')">Simpan</button>
+        </div>
+      </div>
+    </div>`;
+  attachNumInput('mfJumlah');
+  setTimeout(()=>document.getElementById('mfJumlah')?.focus(),50);
+}
+
+function saveModalModal(kantong, mode) {
+  const raw = (document.getElementById('mfJumlah').value||'').replace(/\./g,'');
+  const amount = parseInt(raw);
+  if(!amount||amount<=0){alert('Masukkan jumlah yang valid.');return;}
+  const memo = document.getElementById('mfMemo').value.trim();
+  const now  = new Date();
+  const {cash,rek} = calcSaldo();
+  if(mode==='sub'){
+    const saldo = kantong==='cash' ? cash : rek;
+    if(amount > saldo && !confirm(`⚠️ Saldo ${kantong==='cash'?'Cash':'Rekening'} (${fmt(saldo)}) tidak cukup.\nLanjutkan?`)) return;
+  }
+  cfEntries.push({
+    type    : mode==='add' ? 'modal_add' : 'modal_sub',
+    kantong,
+    amount,
+    memo,
+    ref     : mode==='add' ? 'MOD+' : 'MOD-',
+    keterangan: mode==='add' ? 'Tambah Modal' : 'Kurang Modal',
+    date    : now.toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric'}),
+    time    : now.toLocaleTimeString('id-ID'),
+    isoDate : cfIsoDate(now),
+    ts      : now.getTime(),
+  });
+  saveCf(); closeModal(); renderCashflow();
+}
+
+// ═══════════════════════════════════════════════════════
+// CASHFLOW — MODAL TRANSFER
+// ═══════════════════════════════════════════════════════
+function openTransferModal(from) {
+  const to    = from === 'cash' ? 'rek' : 'cash';
+  const fLabel= from === 'cash' ? 'Cash' : 'Rekening';
+  const tLabel= to   === 'cash' ? 'Cash' : 'Rekening';
+  const {cash,rek} = calcSaldo();
+  const saldoFrom = from==='cash' ? cash : rek;
+  document.getElementById('modalWrap').innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this)closeModal()">
+      <div class="modal">
+        <h3>Transfer Dana</h3>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:12px;padding:8px;background:var(--bg);border-radius:6px">
+          <strong>${fLabel}</strong> → <strong>${tLabel}</strong><br>
+          <span style="font-size:11px">Saldo ${fLabel} saat ini: ${fmt(saldoFrom)}</span>
+        </div>
+        <label>Jumlah (Rp)</label>
+        <input id="mfJumlah" type="text" inputmode="numeric" placeholder="0" style="text-align:right"/>
+        <label>Memo / Keterangan</label>
+        <input id="mfMemo" placeholder="Opsional"/>
+        <div class="modal-btns">
+          <button class="btn" onclick="closeModal()">Batal</button>
+          <button class="btn btn-dark" onclick="saveTransfer('${from}')">Transfer</button>
+        </div>
+      </div>
+    </div>`;
+  attachNumInput('mfJumlah');
+  setTimeout(()=>document.getElementById('mfJumlah')?.focus(),50);
+}
+
+function saveTransfer(from) {
+  const raw    = (document.getElementById('mfJumlah').value||'').replace(/\./g,'');
+  const amount = parseInt(raw);
+  if(!amount||amount<=0){alert('Masukkan jumlah yang valid.');return;}
+  const memo   = document.getElementById('mfMemo').value.trim();
+  const {cash,rek} = calcSaldo();
+  const saldo  = from==='cash' ? cash : rek;
+  if(amount > saldo && !confirm(`⚠️ Saldo ${from==='cash'?'Cash':'Rekening'} (${fmt(saldo)}) tidak cukup.\nLanjutkan?`)) return;
+  const now = new Date();
+  const to  = from==='cash'?'rek':'cash';
+  cfEntries.push({
+    type    : 'transfer',
+    from, to, amount, memo,
+    ref     : 'TRF',
+    date    : now.toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric'}),
+    time    : now.toLocaleTimeString('id-ID'),
+    isoDate : cfIsoDate(now),
+    ts      : now.getTime(),
+  });
+  saveCf(); closeModal(); renderCashflow();
+}
+
+// ═══════════════════════════════════════════════════════
+// CASHFLOW — MODAL NOTA BELANJA
+// ═══════════════════════════════════════════════════════
+let notaRows = [{name:'',qty:1,harga:0}];
+
+function openNotaBelanjaModal() {
+  notaRows = [{name:'',qty:1,harga:0}];
+  renderNotaModal();
+}
+
+function renderNotaModal() {
+  const {cash,rek} = calcSaldo();
+  const cats = CF_CATS;
+  document.getElementById('modalWrap').innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this)closeModal()">
+      <div class="modal modal-wide">
+        <h3>🛒 Nota Belanja</h3>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+          <div>
+            <label>Nama Pembeli</label>
+            <input id="nbOleh" placeholder="Nama pembeli"/>
+          </div>
+          <div>
+            <label>Nama Toko / Tempat</label>
+            <input id="nbToko" placeholder="Nama toko"/>
+          </div>
+          <div>
+            <label>Kategori</label>
+            <input id="nbCat" list="nbCatList" placeholder="Pilih atau ketik kategori"/>
+            <datalist id="nbCatList">${cats.map(c=>`<option value="${c}">`).join('')}</datalist>
+          </div>
+          <div>
+            <label>Sumber Dana</label>
+            <select id="nbKantong" style="width:100%;padding:8px 10px;font-family:'DM Sans',sans-serif;font-size:13px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);color:var(--text);margin-bottom:12px">
+              <option value="rek">🏦 Rekening (${fmt(rek)})</option>
+              <option value="cash">💵 Cash (${fmt(cash)})</option>
+            </select>
+          </div>
+        </div>
+
+        <label>Item Belanja</label>
+        <div class="nota-items-wrap">
+          <div class="nota-item-header">
+            <span>Nama Item</span><span>Qty</span><span>Harga Satuan</span><span></span>
+          </div>
+          <div id="notaRowsWrap">${renderNotaRows()}</div>
+          <div class="nota-add-row">
+            <button class="btn" style="font-size:11px;padding:4px 10px" onclick="addNotaRow()">+ Tambah Item</button>
+          </div>
+          <div class="nota-total-row">
+            <span style="font-size:11px;font-weight:600;color:var(--muted)">TOTAL</span>
+            <span id="notaTotal" style="font-family:'DM Serif Display',serif;font-size:17px;color:var(--accent)">${fmt(calcNotaTotal())}</span>
+          </div>
+        </div>
+
+        <label>Memo / Catatan</label>
+        <input id="nbMemo" placeholder="Opsional"/>
+
+        <div class="modal-btns">
+          <button class="btn" onclick="closeModal()">Batal</button>
+          <button class="btn btn-dark" onclick="saveNotaBelanja()">💾 Simpan Nota</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderNotaRows() {
+  return notaRows.map((r,i)=>`
+    <div class="nota-item-row" id="nr-${i}">
+      <input value="${r.name}" placeholder="Nama item" oninput="updateNotaRow(${i},'name',this.value)"/>
+      <input type="text" inputmode="numeric" value="${r.qty||''}" placeholder="1" oninput="updateNotaRow(${i},'qty',this.value)" style="text-align:center"/>
+      <input type="text" inputmode="numeric" value="${r.harga?fmtNum(r.harga):''}" placeholder="0" oninput="updateNotaRow(${i},'harga',this.value)" style="text-align:right"/>
+      <button class="del-row-btn" onclick="delNotaRow(${i})">×</button>
+    </div>`).join('');
+}
+
+function fmtNum(n){ return parseInt(n).toLocaleString('id-ID'); }
+
+function updateNotaRow(i, field, val) {
+  if(field==='name') { notaRows[i].name = val; }
+  if(field==='qty')  { notaRows[i].qty  = parseInt(val)||0; }
+  if(field==='harga'){ notaRows[i].harga= parseInt(val.replace(/\./g,'').replace(/[^0-9]/g,''))||0; }
+  refreshNotaTotal();
+}
+
+function addNotaRow() {
+  notaRows.push({name:'',qty:1,harga:0});
+  const wrap = document.getElementById('notaRowsWrap');
+  if(wrap){ wrap.innerHTML = renderNotaRows(); refreshNotaTotal(); }
+}
+
+function delNotaRow(i) {
+  if(notaRows.length===1){alert('Minimal 1 item.');return;}
+  notaRows.splice(i,1);
+  const wrap = document.getElementById('notaRowsWrap');
+  if(wrap){ wrap.innerHTML = renderNotaRows(); refreshNotaTotal(); }
+}
+
+function calcNotaTotal() {
+  return notaRows.reduce((s,r)=>s+(r.qty||0)*(r.harga||0),0);
+}
+
+function refreshNotaTotal() {
+  const el = document.getElementById('notaTotal');
+  if(el) el.textContent = fmt(calcNotaTotal());
+}
+
+function saveNotaBelanja() {
+  const oleh    = document.getElementById('nbOleh')?.value.trim();
+  const toko    = document.getElementById('nbToko')?.value.trim();
+  const cat     = document.getElementById('nbCat')?.value.trim();
+  const kantong = document.getElementById('nbKantong')?.value;
+  const memo    = document.getElementById('nbMemo')?.value.trim();
+  if(!oleh){alert('Nama pembeli wajib diisi.');return;}
+  if(!toko){alert('Nama toko wajib diisi.');return;}
+  const validRows = notaRows.filter(r=>r.name&&r.qty>0&&r.harga>0);
+  if(!validRows.length){alert('Minimal 1 item dengan nama, qty, dan harga.');return;}
+  const total = validRows.reduce((s,r)=>s+r.qty*r.harga,0);
+  const {cash,rek} = calcSaldo();
+  const saldo = kantong==='cash' ? cash : rek;
+  if(total > saldo && !confirm(`⚠️ Saldo ${kantong==='cash'?'Cash':'Rekening'} (${fmt(saldo)}) tidak cukup.\nTotal belanja ${fmt(total)}.\nLanjutkan?`)) return;
+  const now  = new Date();
+  const ref  = getNotaCode();
+  cfEntries.push({
+    type    : 'belanja',
+    kantong, amount: total,
+    ref, oleh, toko, cat, memo,
+    items   : validRows,
+    keterangan: `Belanja di ${toko}`,
+    date    : now.toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric'}),
+    time    : now.toLocaleTimeString('id-ID'),
+    isoDate : cfIsoDate(now),
+    ts      : now.getTime(),
+  });
+  saveCf(); closeModal(); renderCashflow();
+  alert(`✅ Nota ${ref} berhasil disimpan.\nTotal: ${fmt(total)}`);
+}
+
+// ═══════════════════════════════════════════════════════
+// CASHFLOW — INTEGRASI KASIR → CASHFLOW
+// Dipanggil otomatis saat processOrder() berhasil
+// ═══════════════════════════════════════════════════════
+function recordCfFromOrder(o) {
+  const isCashPay = o.payment === 'cash';
+  const isNonCash = !isCashPay; // QRIS dan semua online
+  const now = new Date(o.ts || Date.now());
+  cfEntries.push({
+    type            : isCashPay ? 'penjualan_cash' : 'penjualan_rek',
+    kantong         : isCashPay ? 'cash' : 'rek',
+    amount          : o.total,          // sementara nilai nota penuh
+    amountGross     : o.total,          // nilai nota penuh, tidak pernah berubah
+    pendingPotongan : isNonCash,        // flag: perlu diupdate saat potongan diisi
+    orderKey        : getPotongKey(o),  // untuk matching saat syncCfPotongan
+    ref             : o.orderId,
+    keterangan      : `Penjualan #${o.orderId}${o.customer?' - '+o.customer:''}`,
+    oleh            : '',
+    toko            : '',
+    cat             : 'Penjualan',
+    date            : o.date,
+    time            : o.time,
+    isoDate         : o.isoDate,
+    ts              : o.ts || now.getTime(),
+  });
+  saveCf();
+}
+
+// Dipanggil setiap kali potongan disimpan via savePotongModal
+// Cari entry cashflow yang orderKey-nya cocok, update amount ke netReceived
+function syncCfPotongan(potongKey, potongAmount) {
+  const entry = cfEntries.find(e => e.orderKey === potongKey && e.pendingPotongan);
+  if (!entry) return;
+  entry.amount          = entry.amountGross - potongAmount;
+  entry.pendingPotongan = false;
+  saveCf();
+  // Jika halaman cashflow sedang aktif, refresh
+  if (document.getElementById('page-cashflow')?.classList.contains('active')) renderCashflow();
+}
+
+// Helper input numerik dengan format titik ribuan (reuse untuk modal cashflow)
+function attachNumInput(id) {
+  const inp = document.getElementById(id);
+  if(!inp) return;
+  inp.addEventListener('keydown', function(e){
+    if([8,9,13,27,35,36,37,38,39,40,46].includes(e.keyCode)) return;
+    if((e.ctrlKey||e.metaKey)&&[65,67,86,88].includes(e.keyCode)) return;
+    if(e.key<'0'||e.key>'9') e.preventDefault();
+  });
+  inp.addEventListener('input', function(){
+    const raw = this.value.replace(/\./g,'').replace(/[^0-9]/g,'');
+    const cur = this.selectionStart, old = this.value.length;
+    this.value = raw ? raw.replace(/\B(?=(\d{3})+(?!\d))/g,'.') : '';
+    const diff = this.value.length - old;
+    try{this.setSelectionRange(cur+diff,cur+diff);}catch(e){}
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// CASHFLOW — EXPORT CSV
+// ═══════════════════════════════════════════════════════
+function exportCfCSV() {
+  const filtered = filterCfEntries(cfPeriod);
+  if(!filtered.length){alert('Tidak ada data untuk diekspor.');return;}
+  const rows = [['Ref/No','Tanggal','Waktu','Keterangan','Kategori','Oleh','Toko','Kantong','Masuk','Keluar','Saldo Cash','Saldo Rek']];
+  const sortedIdx = filtered.map(e=>cfEntries.indexOf(e)).sort((a,b)=>a-b);
+  sortedIdx.forEach(idx=>{
+    const e=cfEntries[idx];
+    const {cash,rek}=calcSaldoAt(idx);
+    rows.push([
+      e.ref||'',e.date||'',e.time||'',
+      e.keterangan||cfTypeLabel(e),e.cat||'',e.oleh||'',e.toko||'',
+      e.kantong==='cash'?'Cash':'Rekening',
+      cfEntryMasuk(e)||'',cfEntryKeluar(e)||'',cash,rek
+    ]);
+  });
+  const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download='namorapos-cashflow.csv';
+  a.click();
+}
+
+// ═══════════════════════════════════════════════════════
+// EDIT REKAP — 3 MODAL FLOW
+// ═══════════════════════════════════════════════════════
+
+// State sementara selama proses edit
+let _editCtx = null; // {orderId, editorName, reason, editItems, editPayment}
+
+// ── MODAL 1: Identitas Editor ──
+function startEditRekap(orderId) {
+  const o = orders.find(x => x.orderId === orderId);
+  if (!o) return;
+  document.getElementById('modalWrap').innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this)closeModal()">
+      <div class="modal">
+        <div class="modal-step">
+          <span class="active">1 Identitas</span>
+          <span>2 Edit Data</span>
+          <span>3 Konfirmasi</span>
+        </div>
+        <h3>✏️ Edit Transaksi</h3>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:14px">Order <strong>#${orderId}</strong> · ${o.date} ${o.time}</div>
+        <label>Nama Editor <span style="color:var(--red)">*</span></label>
+        <input id="erNama" placeholder="Nama lengkap editor" style="margin-bottom:10px"/>
+        <label>Alasan Edit</label>
+        <input id="erAlasan" placeholder="Opsional — contoh: salah input payment"/>
+        <div class="modal-btns" style="margin-top:16px">
+          <button class="btn" onclick="closeModal()">Batal</button>
+          <button class="btn btn-dark" onclick="goEditModal2('${orderId}')">Lanjut →</button>
+        </div>
+      </div>
+    </div>`;
+  setTimeout(()=>document.getElementById('erNama')?.focus(), 50);
+}
+
+// ── MODAL 2: Form Edit Data ──
+function goEditModal2(orderId) {
+  const nama   = document.getElementById('erNama')?.value.trim();
+  const alasan = document.getElementById('erAlasan')?.value.trim();
+  if (!nama) { alert('Nama editor wajib diisi.'); return; }
+  const o = orders.find(x => x.orderId === orderId);
+  if (!o) return;
+
+  // Inisialisasi edit context dengan deep copy items
+  _editCtx = {
+    orderId,
+    editorName : nama,
+    reason     : alasan,
+    editPayment: o.payment,
+    editItems  : o.items.map(i => ({...i})),
+  };
+
+  renderEditModal2(o);
+}
+
+function renderEditModal2(o) {
+  const payOpts = ['cash','qris','grabfood','gofood','shopeefood'];
+  const payLabels = {cash:'Cash',qris:'QRIS',grabfood:'GrabFood',gofood:'GoFood',shopeefood:'ShopeeFood'};
+  const {subtotal, surcharge, total} = calcEditTotal();
+
+  document.getElementById('modalWrap').innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this)closeModal()">
+      <div class="modal modal-wide">
+        <div class="modal-step">
+          <span>1 Identitas</span>
+          <span class="active">2 Edit Data</span>
+          <span>3 Konfirmasi</span>
+        </div>
+        <h3>✏️ Edit Transaksi <span style="font-size:13px;color:var(--muted)">#${o.orderId}</span></h3>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:12px">Editor: <strong>${_editCtx.editorName}</strong>${_editCtx.reason?' · '+_editCtx.reason:''}</div>
+
+        <div class="edit-section-label">Data Tetap (tidak bisa diedit)</div>
+        <div class="edit-static-row"><span class="esr-label">Order ID</span><span class="esr-val">${o.orderId}</span></div>
+        <div class="edit-static-row"><span class="esr-label">Tanggal</span><span class="esr-val">${o.date} ${o.time}</span></div>
+        <div class="edit-static-row"><span class="esr-label">Dine Type</span><span class="esr-val">${o.dineType==='takeaway'?'🛍 Take Away':'🪑 Dine In'}</span></div>
+        <div class="edit-static-row"><span class="esr-label">Customer</span><span class="esr-val">${o.customer||'—'}</span></div>
+
+        <div class="edit-section-label">Metode Pembayaran</div>
+        <select id="erPayment" style="width:100%;padding:8px 10px;font-family:'DM Sans',sans-serif;font-size:13px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);color:var(--text);margin-bottom:12px" onchange="onEditPaymentChange(this.value)">
+          ${payOpts.map(p=>`<option value="${p}" ${_editCtx.editPayment===p?'selected':''}>${payLabels[p]}</option>`).join('')}
+        </select>
+
+        <div class="edit-section-label">Item Pesanan</div>
+        <div class="nota-items-wrap">
+          <div class="nota-item-header">
+            <span>Nama Item</span><span>Qty</span><span>Harga Satuan</span><span></span>
+          </div>
+          <div id="erItemsWrap">${renderEditItemRows()}</div>
+          <div class="nota-add-row">
+            <button class="btn" style="font-size:11px;padding:4px 10px" onclick="addEditItem()">+ Tambah Item</button>
+          </div>
+        </div>
+
+        <div class="edit-total-preview" id="erTotalPreview">
+          <div class="etp-row"><span style="color:var(--muted)">Subtotal</span><span>${fmt(subtotal)}</span></div>
+          <div class="etp-row"><span style="color:var(--muted)">Surcharge (25%)</span><span>${fmt(surcharge)}</span></div>
+          <div class="etp-row total"><span>Total</span><span>${fmt(total)}</span></div>
+        </div>
+
+        <div class="warn-reset" id="erPotongWarn" style="display:${(isOnline(_editCtx.editPayment)||_editCtx.editPayment==='qris')?'block':'none'}">
+          ⚠️ Potongan akan direset dan harus diisi ulang setelah edit disimpan.
+        </div>
+
+        <div class="modal-btns" style="margin-top:12px">
+          <button class="btn" onclick="closeModal()">Batal</button>
+          <button class="btn btn-dark" onclick="goEditModal3('${o.orderId}')">Konfirmasi →</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderEditItemRows() {
+  return _editCtx.editItems.map((r,i)=>`
+    <div class="edit-item-row">
+      <input value="${r.name}" placeholder="Nama item" oninput="updateEditItem(${i},'name',this.value)"/>
+      <input type="text" inputmode="numeric" value="${r.qty}" oninput="updateEditItem(${i},'qty',this.value)" style="text-align:center"/>
+      <input type="text" inputmode="numeric" value="${r.price?r.price.toLocaleString('id-ID'):''}" oninput="updateEditItem(${i},'price',this.value)" style="text-align:right"/>
+      <button class="del-row-btn" onclick="delEditItem(${i})">×</button>
+    </div>`).join('');
+}
+
+function calcEditTotal() {
+  const subtotal  = _editCtx.editItems.reduce((s,i)=>s+(i.qty||0)*(i.price||0),0);
+  const isSurcharge = isOnline(_editCtx.editPayment);
+  const surcharge = isSurcharge ? Math.round(subtotal * 0.25) : 0;
+  return { subtotal, surcharge, total: subtotal + surcharge };
+}
+
+function refreshEditTotalPreview() {
+  const {subtotal, surcharge, total} = calcEditTotal();
+  const el = document.getElementById('erTotalPreview');
+  if (el) el.innerHTML = `
+    <div class="etp-row"><span style="color:var(--muted)">Subtotal</span><span>${fmt(subtotal)}</span></div>
+    <div class="etp-row"><span style="color:var(--muted)">Surcharge (25%)</span><span>${fmt(surcharge)}</span></div>
+    <div class="etp-row total"><span>Total</span><span>${fmt(total)}</span></div>`;
+}
+
+function onEditPaymentChange(val) {
+  _editCtx.editPayment = val;
+  const warn = document.getElementById('erPotongWarn');
+  if (warn) warn.style.display = (isOnline(val)||val==='qris') ? 'block' : 'none';
+  refreshEditTotalPreview();
+}
+
+function updateEditItem(i, field, val) {
+  if (field==='name')  _editCtx.editItems[i].name  = val;
+  if (field==='qty')   _editCtx.editItems[i].qty   = parseInt(val)||0;
+  if (field==='price') _editCtx.editItems[i].price = parseInt(val.replace(/\./g,'').replace(/[^0-9]/g,''))||0;
+  refreshEditTotalPreview();
+}
+
+function addEditItem() {
+  _editCtx.editItems.push({name:'',qty:1,price:0});
+  const wrap = document.getElementById('erItemsWrap');
+  if (wrap) wrap.innerHTML = renderEditItemRows();
+}
+
+function delEditItem(i) {
+  if (_editCtx.editItems.length===1){alert('Minimal 1 item.');return;}
+  _editCtx.editItems.splice(i,1);
+  const wrap = document.getElementById('erItemsWrap');
+  if (wrap) wrap.innerHTML = renderEditItemRows();
+  refreshEditTotalPreview();
+}
+
+// ── MODAL 3: Konfirmasi Before/After ──
+function goEditModal3(orderId) {
+  const validItems = _editCtx.editItems.filter(i=>i.name&&i.qty>0&&i.price>0);
+  if (!validItems.length){alert('Minimal 1 item valid (nama, qty, harga > 0).');return;}
+  _editCtx.editItems = validItems;
+
+  const o = orders.find(x => x.orderId === orderId);
+  const {subtotal, surcharge, total} = calcEditTotal();
+  const payLabels = {cash:'Cash',qris:'QRIS',grabfood:'GrabFood',gofood:'GoFood',shopeefood:'ShopeeFood'};
+
+  // Hitung changes
+  const changes = [];
+  if (o.payment !== _editCtx.editPayment)
+    changes.push({field:'Payment', before: payLabels[o.payment]||o.payment, after: payLabels[_editCtx.editPayment]||_editCtx.editPayment});
+
+  // Cek perubahan item
+  const oldItemStr = o.items.map(i=>`${i.name} x${i.qty} @${i.price}`).join(', ');
+  const newItemStr = _editCtx.editItems.map(i=>`${i.name} x${i.qty} @${i.price}`).join(', ');
+  if (oldItemStr !== newItemStr)
+    changes.push({field:'Item', before: oldItemStr, after: newItemStr});
+
+  if (o.total !== total)
+    changes.push({field:'Total', before: fmt(o.total), after: fmt(total)});
+
+  const needResetPotong = (isOnline(_editCtx.editPayment) || _editCtx.editPayment==='qris');
+  if (needResetPotong)
+    changes.push({field:'Potongan', before: '(direset)', after: '— isi ulang'});
+
+  if (!changes.length) {alert('Tidak ada perubahan.'); return;}
+
+  document.getElementById('modalWrap').innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this)closeModal()">
+      <div class="modal modal-wide">
+        <div class="modal-step">
+          <span>1 Identitas</span>
+          <span>2 Edit Data</span>
+          <span class="active">3 Konfirmasi</span>
+        </div>
+        <h3>Konfirmasi Perubahan</h3>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Order <strong>#${orderId}</strong> · Editor: <strong>${_editCtx.editorName}</strong></div>
+
+        <div style="background:var(--bg);border-radius:var(--radius);padding:10px;margin-bottom:12px">
+          ${changes.map(c=>`
+            <div class="confirm-change-row">
+              <span class="ccr-field">${c.field}</span>
+              <span class="ccr-before">${c.before}</span>
+              <span class="ccr-arrow">→</span>
+              <span class="ccr-after">${c.after}</span>
+            </div>`).join('')}
+        </div>
+
+        <div style="font-size:10px;color:var(--hint);margin-bottom:14px">Perubahan ini akan dicatat di riwayat edit order.</div>
+
+        <div class="modal-btns">
+          <button class="btn" onclick="closeModal()">Batal</button>
+          <button class="btn btn-dark" onclick="saveEditRekap('${orderId}')">✅ Simpan Perubahan</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── SIMPAN EDIT ──
+function saveEditRekap(orderId) {
+  const idx = orders.findIndex(x => x.orderId === orderId);
+  if (idx < 0) return;
+  const o   = orders[idx];
+  const {subtotal, surcharge, total} = calcEditTotal();
+  const now = new Date();
+  const payLabels = {cash:'Cash',qris:'QRIS',grabfood:'GrabFood',gofood:'GoFood',shopeefood:'ShopeeFood'};
+
+  // Kumpulkan changes untuk history
+  const changes = [];
+  if (o.payment !== _editCtx.editPayment)
+    changes.push({field:'payment', before: o.payment, after: _editCtx.editPayment});
+  const oldItemStr = o.items.map(i=>`${i.name} x${i.qty} @${i.price}`).join(', ');
+  const newItemStr = _editCtx.editItems.map(i=>`${i.name} x${i.qty} @${i.price}`).join(', ');
+  if (oldItemStr !== newItemStr)
+    changes.push({field:'items', before: oldItemStr, after: newItemStr});
+  if (o.subtotal !== subtotal)
+    changes.push({field:'subtotal', before: o.subtotal, after: subtotal});
+  if (o.surcharge !== surcharge)
+    changes.push({field:'surcharge', before: o.surcharge, after: surcharge});
+  if (o.total !== total)
+    changes.push({field:'total', before: o.total, after: total});
+
+  // Append edit history
+  if (!o.editHistory) o.editHistory = [];
+  o.editHistory.push({
+    editedAt  : now.toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric'}) + ' ' + now.toLocaleTimeString('id-ID'),
+    editorName: _editCtx.editorName,
+    reason    : _editCtx.reason,
+    changes,
+  });
+
+  // Update order data
+  o.payment  = _editCtx.editPayment;
+  o.items    = _editCtx.editItems;
+  o.subtotal = subtotal;
+  o.surcharge= surcharge;
+  o.total    = total;
+  orders[idx] = o;
+  saveOrders();
+
+  // Reset potongan jika QRIS/online
+  const needResetPotong = isOnline(o.payment) || o.payment==='qris';
+  if (needResetPotong) {
+    delete potongMap[getPotongKey(o)];
+    savePotong();
+  }
+
+  // Cascade ke cashflow
+  syncCfAfterEdit(o, total, needResetPotong);
+
+  closeModal();
+  renderRekap();
+  alert(`✅ Order #${orderId} berhasil diupdate.`);
+}
+
+// ── CASCADE CASHFLOW SETELAH EDIT ──
+function syncCfAfterEdit(o, newTotal, resetPotongan) {
+  const entry = cfEntries.find(e => e.orderKey === getPotongKey(o) || e.ref === o.orderId);
+  if (!entry) return;
+
+  // Update kantong berdasarkan payment baru
+  entry.kantong = o.payment === 'cash' ? 'cash' : 'rek';
+  entry.type    = o.payment === 'cash' ? 'penjualan_cash' : 'penjualan_rek';
+  entry.amountGross = newTotal;
+
+  if (resetPotongan || entry.pendingPotongan) {
+    entry.amount          = newTotal;
+    entry.pendingPotongan = true;
+  } else {
+    entry.amount = newTotal;
+  }
+
+  entry.keterangan = `Penjualan #${o.orderId}${o.customer?' - '+o.customer:''}`;
+  saveCf();
+}
+
+// ── MODAL HISTORY EDIT ──
+function showEditHistory(orderId) {
+  const o = orders.find(x => x.orderId === orderId);
+  if (!o || !o.editHistory?.length) return;
+  const payLabels = {cash:'Cash',qris:'QRIS',grabfood:'GrabFood',gofood:'GoFood',shopeefood:'ShopeeFood'};
+  const fieldLabels = {payment:'Payment',items:'Item',subtotal:'Subtotal',surcharge:'Surcharge',total:'Total'};
+
+  document.getElementById('modalWrap').innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this)closeModal()">
+      <div class="modal modal-wide">
+        <h3>📋 Riwayat Edit</h3>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:14px">Order <strong>#${orderId}</strong> · ${o.editHistory.length}x diedit</div>
+        ${o.editHistory.slice().reverse().map((h,i)=>`
+          <div class="history-row">
+            <div class="hr-meta">
+              🕐 ${h.editedAt} &nbsp;·&nbsp; 👤 <strong>${h.editorName}</strong>
+              ${h.reason?`&nbsp;·&nbsp; 📝 <em>${h.reason}</em>`:''}
+            </div>
+            ${h.changes.map(c=>`
+              <div class="history-change">
+                <span class="hc-field">${fieldLabels[c.field]||c.field}</span>
+                <span class="hc-before">${typeof c.before==='number'?fmt(c.before):c.before}</span>
+                <span class="hc-arrow">→</span>
+                <span class="hc-after">${typeof c.after==='number'?fmt(c.after):c.after}</span>
+              </div>`).join('')}
+          </div>`).join('')}
+        <div class="modal-btns">
+          <button class="btn btn-dark" onclick="closeModal()">Tutup</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// CASHFLOW — DETAIL NOTA BELANJA
+// ═══════════════════════════════════════════════════════
+function showDetailBelanja(cfIdx) {
+  const e = cfEntries[cfIdx];
+  if (!e || e.type !== 'belanja') return;
+  const items = e.items || [];
+  const total = items.reduce((s,i)=>s+(i.qty||0)*(i.harga||i.price||0), 0);
+
+  document.getElementById('modalWrap').innerHTML = `
+    <div class="modal-overlay" onclick="if(event.target===this)closeModal()">
+      <div class="modal modal-wide">
+        <h3>🧾 Detail Nota Belanja</h3>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;padding:10px;background:var(--bg);border-radius:var(--radius);font-size:12px">
+          <div><span style="color:var(--muted)">Kode Nota</span><br><strong>${e.ref||'—'}</strong></div>
+          <div><span style="color:var(--muted)">Tanggal</span><br><strong>${e.date||'—'} ${e.time||''}</strong></div>
+          <div><span style="color:var(--muted)">Nama Pembeli</span><br><strong>${e.oleh||'—'}</strong></div>
+          <div><span style="color:var(--muted)">Toko / Tempat</span><br><strong>${e.toko||'—'}</strong></div>
+          <div><span style="color:var(--muted)">Kategori</span><br><strong>${e.cat||'—'}</strong></div>
+          <div><span style="color:var(--muted)">Sumber Dana</span><br><strong>${e.kantong==='cash'?'💵 Cash':'🏦 Rekening'}</strong></div>
+        </div>
+
+        ${e.memo?`<div style="font-size:11px;color:var(--muted);margin-bottom:12px;padding:6px 10px;background:var(--bg);border-radius:6px;border-left:3px solid var(--border)">📝 ${e.memo}</div>`:''}
+
+        <div class="nota-items-wrap">
+          <div class="nota-item-header" style="grid-template-columns:1fr 50px 95px 90px">
+            <span>Nama Item</span><span>Qty</span><span>Harga Satuan</span><span style="text-align:right">Subtotal</span>
+          </div>
+          ${items.map(i=>{
+            const harga = i.harga||i.price||0;
+            const sub   = (i.qty||0) * harga;
+            return `<div style="display:grid;grid-template-columns:1fr 50px 95px 90px;gap:6px;padding:7px 8px;border-bottom:1px solid var(--border);font-size:12px;align-items:center">
+              <span>${i.name||'—'}</span>
+              <span style="text-align:center;color:var(--muted)">${i.qty}</span>
+              <span style="text-align:right;color:var(--muted)">${fmt(harga)}</span>
+              <span style="text-align:right;font-weight:500">${fmt(sub)}</span>
+            </div>`;
+          }).join('')}
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 10px;background:var(--bg);border-top:1px solid var(--border)">
+            <span style="font-size:11px;font-weight:700;color:var(--muted)">TOTAL</span>
+            <span style="font-family:'DM Serif Display',serif;font-size:18px;color:var(--accent)">${fmt(total)}</span>
+          </div>
+        </div>
+
+        <div class="modal-btns" style="margin-top:14px">
+          <button class="btn btn-dark" onclick="closeModal()">Tutup</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════
 // CLOCK
 // ═══════════════════════════════════════════════════════
 function tick() {
@@ -1551,6 +2774,7 @@ renderCats();
 renderMenu();
 renderCart();
 updateLockUI();
+updateEditRekapUI();
 </script>
 </body>
 </html>
