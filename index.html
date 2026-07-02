@@ -1189,9 +1189,9 @@ async function processOrder() {
   saveOrders();
   recordCfFromOrder(orderData);
   buildReceipt(orderData);
-  window.print();
+  await printReceipt(orderData);
   clearCart();
-  renderCart(); // refresh daily num preview
+  renderCart();
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1249,6 +1249,260 @@ function buildReceipt(o) {
       ${o.dineType !== 'takeaway' ? `<div class="r-wifi">WiFi &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <strong>NAMORA Cafe</strong><br>WiFi Pass : <strong>ngopisantai</strong></div>` : ''}
       <div class="r-sylvan">a ${SYLVAN_LOGO_RECEIPT} product · Namora IMS 2026</div>
     </div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// ESC/POS BLE PRINT ENGINE
+// Target: Eppos EP5813 / RPP02N
+// UUID Primary : e7810a71-73ae-499d-8c15-faa9aef0c3f2
+// UUID Fallback: 000018f0-0000-1000-8000-00805f9b34fb
+// ═══════════════════════════════════════════════════════
+
+// BLE UUIDs
+const BLE_UUIDS = [
+  { service: 'e7810a71-73ae-499d-8c15-faa9aef0c3f2', char: 'bef8d6c9-9c21-4c9e-b632-bd58c1009f9f' },
+  { service: '000018f0-0000-1000-8000-00805f9b34fb', char: '00002af1-0000-1000-8000-00805f9b34fb' },
+];
+
+// ESC/POS command bytes
+const ESC  = 0x1B;
+const GS   = 0x1D;
+const LF   = 0x0A;
+const NUL  = 0x00;
+
+const ESC_INIT        = [ESC, 0x40];                    // Initialize printer
+const ESC_ALIGN_LEFT  = [ESC, 0x61, 0x00];
+const ESC_ALIGN_CENTER= [ESC, 0x61, 0x01];
+const ESC_ALIGN_RIGHT = [ESC, 0x61, 0x02];
+const ESC_BOLD_ON     = [ESC, 0x45, 0x01];
+const ESC_BOLD_OFF    = [ESC, 0x45, 0x00];
+const ESC_DOUBLE_ON   = [GS,  0x21, 0x11];              // Double width+height
+const ESC_DOUBLE_OFF  = [GS,  0x21, 0x00];
+const ESC_CUT         = [GS,  0x56, 0x42, 0x00];        // Partial cut
+const ESC_FEED        = (n) => [ESC, 0x64, n];          // Feed n lines
+
+// Convert string to Uint8Array (Latin-1 safe untuk thermal)
+function strToBytes(str) {
+  const bytes = [];
+  for (let i = 0; i < str.length; i++) {
+    const c = str.charCodeAt(i);
+    bytes.push(c < 256 ? c : 0x3F); // ? untuk karakter di luar range
+  }
+  return bytes;
+}
+
+// Pad/truncate string ke lebar tertentu
+function padR(str, len) { return str.substring(0, len).padEnd(len, ' '); }
+function padL(str, len) { return str.substring(0, len).padStart(len, ' '); }
+
+// Format ribuan tanpa simbol Rp untuk ESC/POS
+function fmtEsc(n) { return parseInt(n||0).toLocaleString('id-ID'); }
+
+// Divider 32 karakter (lebar 58mm ~32 char)
+const DIV_SOLID = '================================';
+const DIV_DASH  = '--------------------------------';
+const WIDTH     = 32;
+
+// Build ESC/POS byte array dari order
+function buildEscPos(o) {
+  const bytes = [];
+  const push  = (...arr) => arr.forEach(b => Array.isArray(b) ? bytes.push(...b) : bytes.push(b));
+  const line  = (str) => { push(...strToBytes(str)); push(LF); };
+  const blank = () => push(LF);
+
+  const dineLabel = o.dineType === 'takeaway' ? 'Take Away' : 'Dine In';
+  const payLabels = {cash:'Cash', qris:'QRIS', grabfood:'GrabFood', gofood:'GoFood', shopeefood:'ShopeeFood'};
+  const payLabel  = payLabels[o.payment] || o.payment;
+  const svcLabel  = isOnline(o.payment) ? `TakeAway-Online-${payLabel}` : `${dineLabel}-${payLabel}`;
+  const totalQty  = o.items.reduce((s,i)=>s+i.qty, 0);
+
+  // INIT
+  push(...ESC_INIT);
+
+  // HEADER — center
+  push(...ESC_ALIGN_CENTER);
+  push(...ESC_DOUBLE_ON);
+  line('NAMORA CAFE');
+  push(...ESC_DOUBLE_OFF);
+  line('Cafe Point of Sale');
+  blank();
+
+  // DATETIME
+  push(...ESC_ALIGN_LEFT);
+  line(`${o.date}  ${o.time}`);
+  line(DIV_SOLID);
+
+  // ORDER INFO
+  push(...ESC_BOLD_ON);
+  line(`No. Order : ${o.orderId}`);
+  push(...ESC_BOLD_OFF);
+  if (o.customer) line(`Customer  : ${o.customer}`);
+  push(...ESC_BOLD_ON);
+  line(svcLabel);
+  push(...ESC_BOLD_OFF);
+  line(DIV_DASH);
+
+  // ITEMS
+  o.items.forEach(i => {
+    const displayPrice = o.surcharge > 0 ? Math.round(i.price * (1 + ONLINE_SURCHARGE)) : i.price;
+    const subtotalItem = displayPrice * i.qty;
+    const nameMaxLen   = WIDTH - 8; // sisakan ruang untuk harga
+    const nameLine     = padR(i.name, nameMaxLen);
+    const priceLine    = padL(fmtEsc(subtotalItem), 8);
+    push(...ESC_BOLD_ON);
+    line(`${nameLine}${priceLine}`);
+    push(...ESC_BOLD_OFF);
+    line(`  ${i.qty} x ${fmtEsc(displayPrice)}`);
+  });
+
+  line(DIV_DASH);
+
+  // TOTAL QTY
+  const qtyLabel = padR(`Total Item`, 20);
+  const qtyVal   = padL(`${totalQty} item`, 12);
+  line(`${qtyLabel}${qtyVal}`);
+
+  // TOTAL
+  push(...ESC_BOLD_ON);
+  push(...ESC_DOUBLE_ON);
+  const totalLabel = padR('TOTAL', 14);
+  const totalVal   = padL(fmtEsc(o.total), 18);
+  line(`${totalLabel}${totalVal}`);
+  push(...ESC_DOUBLE_OFF);
+  push(...ESC_BOLD_OFF);
+
+  line(DIV_SOLID);
+
+  // FOOTER
+  push(...ESC_ALIGN_CENTER);
+  line('Terima kasih :)');
+  line('Sampai jumpa lagi!');
+  if (o.dineType !== 'takeaway') {
+    blank();
+    line('WiFi     : NAMORA Cafe');
+    line('Password : ngopisantai');
+  }
+  blank();
+  line('-- NamoraPOS by Sylvan --');
+
+  // FEED & CUT
+  push(...ESC_FEED(4));
+  push(...ESC_CUT);
+
+  return new Uint8Array(bytes);
+}
+
+// Kirim data ke printer via BLE dalam chunk 20 bytes
+async function sendToPrinter(characteristic, data) {
+  const CHUNK = 20;
+  for (let i = 0; i < data.length; i += CHUNK) {
+    const chunk = data.slice(i, i + CHUNK);
+    await characteristic.writeValue(chunk);
+    // Jeda kecil agar printer tidak overwhelmed
+    await new Promise(r => setTimeout(r, 30));
+  }
+}
+
+// Main print function — BLE dengan fallback ke window.print()
+let bleDevice = null;
+let bleChar   = null;
+
+async function printReceipt(o) {
+  // Cek Web Bluetooth support
+  if (!navigator.bluetooth) {
+    // Fallback: window.print()
+    window.print();
+    return;
+  }
+
+  const escData = buildEscPos(o);
+
+  // Jika sudah ada koneksi aktif, langsung kirim
+  if (bleChar) {
+    try {
+      await sendToPrinter(bleChar, escData);
+      showPrintToast('✅ Berhasil dicetak!');
+      return;
+    } catch(e) {
+      // Koneksi mungkin putus, reset dan coba reconnect
+      bleChar = null;
+      bleDevice = null;
+    }
+  }
+
+  // Request koneksi baru
+  try {
+    showPrintToast('🔍 Mencari printer...', true);
+
+    // Coba dua UUID secara berurutan
+    let gatt, service, char;
+    let connected = false;
+
+    for (const uuid of BLE_UUIDS) {
+      try {
+        bleDevice = await navigator.bluetooth.requestDevice({
+          filters: [{ name: 'RPP02N' }],
+          optionalServices: [uuid.service],
+        });
+
+        bleDevice.addEventListener('gattserverdisconnected', () => {
+          bleChar = null; bleDevice = null;
+          showPrintToast('🔌 Printer terputus');
+        });
+
+        showPrintToast('🔗 Menghubungkan...', true);
+        gatt    = await bleDevice.gatt.connect();
+        service = await gatt.getPrimaryService(uuid.service);
+        char    = await service.getCharacteristic(uuid.char);
+        bleChar = char;
+        connected = true;
+        break;
+      } catch(e) {
+        continue; // coba UUID berikutnya
+      }
+    }
+
+    if (!connected || !bleChar) throw new Error('Tidak bisa connect ke printer');
+
+    showPrintToast('🖨️ Mencetak...', true);
+    await sendToPrinter(bleChar, escData);
+    showPrintToast('✅ Berhasil dicetak!');
+
+  } catch(e) {
+    hidePrintToast();
+    if (e.name === 'NotFoundError' || e.message?.includes('cancelled')) {
+      // User cancel — tawarkan window.print()
+      if (confirm('Koneksi printer dibatalkan.\nCetak via browser (window.print)?')) {
+        window.print();
+      }
+    } else {
+      alert(`❌ Gagal print: ${e.message}\n\nPastikan printer RPP02N menyala dan dalam jangkauan.`);
+    }
+  }
+}
+
+// Toast notifikasi print
+function showPrintToast(msg, persistent = false) {
+  let el = document.getElementById('printToast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'printToast';
+    el.style.cssText = `
+      position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+      background:#1a1a1a;color:#fff;padding:10px 20px;border-radius:20px;
+      font-size:13px;font-family:'DM Sans',sans-serif;z-index:9999;
+      box-shadow:0 4px 12px rgba(0,0,0,0.3);transition:opacity 0.3s;
+      white-space:nowrap;`;
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.opacity = '1';
+  if (!persistent) setTimeout(hidePrintToast, 2500);
+}
+
+function hidePrintToast() {
+  const el = document.getElementById('printToast');
+  if (el) el.style.opacity = '0';
 }
 
 // ═══════════════════════════════════════════════════════
