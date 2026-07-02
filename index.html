@@ -1303,7 +1303,7 @@ const DIV_SOLID = '================================';
 const DIV_DASH  = '--------------------------------';
 const WIDTH     = 32;
 
-// Build ESC/POS byte array dari order
+// Build ESC/POS byte array dari order — format identik dengan buildReceipt (HTML)
 function buildEscPos(o) {
   const bytes = [];
   const push  = (...arr) => arr.forEach(b => Array.isArray(b) ? bytes.push(...b) : bytes.push(b));
@@ -1312,78 +1312,99 @@ function buildEscPos(o) {
 
   const dineLabel = o.dineType === 'takeaway' ? 'Take Away' : 'Dine In';
   const payLabels = {cash:'Cash', qris:'QRIS', grabfood:'GrabFood', gofood:'GoFood', shopeefood:'ShopeeFood'};
-  const payLabel  = payLabels[o.payment] || o.payment;
-  const svcLabel  = isOnline(o.payment) ? `TakeAway-Online-${payLabel}` : `${dineLabel}-${payLabel}`;
-  const totalQty  = o.items.reduce((s,i)=>s+i.qty, 0);
+  let serviceLabel = '';
+  if (isOnline(o.payment)) {
+    serviceLabel = `Take Away - Online - ${payLabels[o.payment]||o.payment}`;
+  } else {
+    serviceLabel = `${dineLabel} - ${payLabels[o.payment]||o.payment}`;
+  }
+  const totalQty = o.items.reduce((s,i) => s + i.qty, 0);
 
   // INIT
   push(...ESC_INIT);
 
-  // HEADER — center
-  push(...ESC_ALIGN_CENTER);
-  push(...ESC_DOUBLE_ON);
-  line('NAMORA CAFE');
-  push(...ESC_DOUBLE_OFF);
-  line('Cafe Point of Sale');
-  blank();
-
-  // DATETIME
+  // HEADER ROW: datetime kiri | brand kanan
+  // Baris 1: tanggal kiri, "Namora POS" kanan
   push(...ESC_ALIGN_LEFT);
-  line(`${o.date}  ${o.time}`);
+  const dateStr  = padR(o.date, 16);
+  const brandStr = padL('Namora POS', 16);
+  line(`${dateStr}${brandStr}`);
+  // Baris 2: waktu kiri, "Cafe Point of Sale" kanan
+  const timeStr  = padR(o.time, 13);
+  const subBrand = padL('Cafe Point of Sale', 19);
+  line(`${timeStr}${subBrand}`);
+
+  // Logo: tidak bisa print gambar via ESC/POS text mode — skip, ganti teks center
+  push(...ESC_ALIGN_CENTER);
+  line('[ Namora Cafe ]');
+  push(...ESC_ALIGN_LEFT);
+
+  // Divider solid
   line(DIV_SOLID);
 
-  // ORDER INFO
+  // Order info
   push(...ESC_BOLD_ON);
   line(`No. Order : ${o.orderId}`);
   push(...ESC_BOLD_OFF);
   if (o.customer) line(`Customer  : ${o.customer}`);
   push(...ESC_BOLD_ON);
-  line(svcLabel);
+  line(serviceLabel);
   push(...ESC_BOLD_OFF);
+
+  // Divider dash
   line(DIV_DASH);
 
-  // ITEMS
+  // ITEMS — nama | qty | harga (kanan), baris 2: @ harga satuan
   o.items.forEach(i => {
     const displayPrice = o.surcharge > 0 ? Math.round(i.price * (1 + ONLINE_SURCHARGE)) : i.price;
     const subtotalItem = displayPrice * i.qty;
-    const nameMaxLen   = WIDTH - 8; // sisakan ruang untuk harga
-    const nameLine     = padR(i.name, nameMaxLen);
-    const priceLine    = padL(fmtEsc(subtotalItem), 8);
+    // Baris 1: nama (kiri) + harga total (kanan)
+    const nameCol  = padR(i.name, 20);
+    const qtyCol   = padR(String(i.qty), 3);
+    const priceCol = padL(fmtEsc(subtotalItem), 9);
     push(...ESC_BOLD_ON);
-    line(`${nameLine}${priceLine}`);
+    line(`${nameCol}${qtyCol}${priceCol}`);
     push(...ESC_BOLD_OFF);
-    line(`  ${i.qty} x ${fmtEsc(displayPrice)}`);
+    // Baris 2: @ harga satuan
+    line(`  @ ${fmtEsc(displayPrice)}`);
   });
 
+  // Divider dash
   line(DIV_DASH);
 
-  // TOTAL QTY
-  const qtyLabel = padR(`Total Item`, 20);
-  const qtyVal   = padL(`${totalQty} item`, 12);
+  // Total item
+  const qtyLabel = padR('Total Item', 22);
+  const qtyVal   = padL(`${totalQty} item`, 10);
   line(`${qtyLabel}${qtyVal}`);
 
-  // TOTAL
+  // TOTAL — bold
   push(...ESC_BOLD_ON);
   push(...ESC_DOUBLE_ON);
-  const totalLabel = padR('TOTAL', 14);
-  const totalVal   = padL(fmtEsc(o.total), 18);
-  line(`${totalLabel}${totalVal}`);
+  // Double size = 16 char wide di 58mm
+  const tLabel = padR('TOTAL', 7);
+  const tVal   = padL(fmtEsc(o.total), 9);
+  line(`${tLabel}${tVal}`);
   push(...ESC_DOUBLE_OFF);
   push(...ESC_BOLD_OFF);
 
+  // Divider solid
   line(DIV_SOLID);
 
   // FOOTER
   push(...ESC_ALIGN_CENTER);
   line('Terima kasih :)');
-  line('Sampai jumpa lagi!');
+  line('Sampai jumpa lagi');
+
   if (o.dineType !== 'takeaway') {
     blank();
-    line('WiFi     : NAMORA Cafe');
-    line('Password : ngopisantai');
+    push(...ESC_ALIGN_LEFT);
+    line(`WiFi      : NAMORA Cafe`);
+    line(`WiFi Pass : ngopisantai`);
   }
+
   blank();
-  line('-- NamoraPOS by Sylvan --');
+  push(...ESC_ALIGN_CENTER);
+  line('a Sylvan product - Namora IMS 2026');
 
   // FEED & CUT
   push(...ESC_FEED(4));
