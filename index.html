@@ -1304,7 +1304,84 @@ const DIV_DASH  = '--------------------------------';
 const WIDTH     = 32;
 
 // Build ESC/POS byte array dari order — format identik dengan buildReceipt (HTML)
-function buildEscPos(o) {
+// ═══════════════════════════════════════════════════════
+// ESC/POS IMAGE — Convert base64 image ke raster bitmap
+// Command: GS v 0 (raster bit image)
+// ═══════════════════════════════════════════════════════
+function imageToEscPos(base64src, maxWidth) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      try {
+        // Hitung dimensi — jaga aspect ratio, max width
+        const scale  = Math.min(1, maxWidth / img.width);
+        const w      = Math.floor(img.width  * scale);
+        const h      = Math.floor(img.height * scale);
+
+        // Draw ke canvas
+        const canvas = document.createElement('canvas');
+        canvas.width  = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+
+        // Ambil pixel data
+        const imgData = ctx.getImageData(0, 0, w, h).data;
+
+        // Lebar harus kelipatan 8 untuk packing bit
+        const wBytes  = Math.ceil(w / 8); // jumlah byte per baris
+        const wPadded = wBytes * 8;       // lebar efektif setelah padding
+
+        const rasterBytes = [];
+
+        for (let y = 0; y < h; y++) {
+          for (let xb = 0; xb < wBytes; xb++) {
+            let byte = 0;
+            for (let bit = 0; bit < 8; bit++) {
+              const x = xb * 8 + bit;
+              if (x < w) {
+                const idx = (y * w + x) * 4;
+                const r   = imgData[idx];
+                const g   = imgData[idx + 1];
+                const b   = imgData[idx + 2];
+                // Grayscale → threshold 128
+                const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+                if (gray < 128) byte |= (0x80 >> bit); // pixel gelap = cetak
+              }
+            }
+            rasterBytes.push(byte);
+          }
+        }
+
+        // Build GS v 0 command
+        // GS v 0 m xL xH yL yH d1..dk
+        // m=0 (normal), xL/xH = lebar dalam bytes, yL/yH = tinggi dalam dots
+        const xL = wBytes & 0xFF;
+        const xH = (wBytes >> 8) & 0xFF;
+        const yL = h & 0xFF;
+        const yH = (h >> 8) & 0xFF;
+
+        const result = [
+          0x1B, 0x61, 0x01,          // ESC a 1 — center align
+          GS, 0x76, 0x30, 0x00,      // GS v 0 m
+          xL, xH, yL, yH,            // dimensi
+          ...rasterBytes,             // pixel data
+          LF,                         // newline setelah logo
+        ];
+
+        resolve(result);
+      } catch(e) {
+        reject(e);
+      }
+    };
+    img.onerror = () => reject(new Error('Gagal load logo'));
+    img.src = base64src;
+  });
+}
+
+async function buildEscPos(o) {
   const bytes = [];
   const push  = (...arr) => arr.forEach(b => Array.isArray(b) ? bytes.push(...b) : bytes.push(b));
   const line  = (str) => { push(...strToBytes(str)); push(LF); };
@@ -1324,22 +1401,34 @@ function buildEscPos(o) {
   push(...ESC_INIT);
 
   // HEADER ROW: datetime kiri | brand kanan
-  // Baris 1: tanggal kiri, "Namora POS" kanan
   push(...ESC_ALIGN_LEFT);
   const dateStr  = padR(o.date, 16);
   const brandStr = padL('Namora POS', 16);
   line(`${dateStr}${brandStr}`);
-  // Baris 2: waktu kiri, "Cafe Point of Sale" kanan
   const timeStr  = padR(o.time, 13);
   const subBrand = padL('Cafe Point of Sale', 19);
   line(`${timeStr}${subBrand}`);
 
-  // Logo: tidak bisa print gambar via ESC/POS text mode — skip, ganti teks center
-  push(...ESC_ALIGN_CENTER);
-  line('[ Namora Cafe ]');
-  push(...ESC_ALIGN_LEFT);
+  // LOGO — convert base64 image ke ESC/POS raster bitmap (GS v 0)
+  const logoSrc = localStorage.getItem('namorapos_logo') || '';
+  if (logoSrc) {
+    try {
+      const logoBytes = await imageToEscPos(logoSrc, 200); // max width 200px
+      push(...logoBytes);
+    } catch(e) {
+      // Gagal load logo — fallback teks
+      push(...ESC_ALIGN_CENTER);
+      line('[ Namora Cafe ]');
+      push(...ESC_ALIGN_LEFT);
+    }
+  } else {
+    push(...ESC_ALIGN_CENTER);
+    line('[ Namora Cafe ]');
+    push(...ESC_ALIGN_LEFT);
+  }
 
   // Divider solid
+  push(...ESC_ALIGN_LEFT);
   line(DIV_SOLID);
 
   // Order info
@@ -1358,14 +1447,12 @@ function buildEscPos(o) {
   o.items.forEach(i => {
     const displayPrice = o.surcharge > 0 ? Math.round(i.price * (1 + ONLINE_SURCHARGE)) : i.price;
     const subtotalItem = displayPrice * i.qty;
-    // Baris 1: nama (kiri) + harga total (kanan)
     const nameCol  = padR(i.name, 20);
     const qtyCol   = padR(String(i.qty), 3);
     const priceCol = padL(fmtEsc(subtotalItem), 9);
     push(...ESC_BOLD_ON);
     line(`${nameCol}${qtyCol}${priceCol}`);
     push(...ESC_BOLD_OFF);
-    // Baris 2: @ harga satuan
     line(`  @ ${fmtEsc(displayPrice)}`);
   });
 
@@ -1436,7 +1523,7 @@ async function printReceipt(o) {
     return;
   }
 
-  const escData = buildEscPos(o);
+  const escData = await buildEscPos(o);
 
   // Jika sudah ada koneksi aktif, langsung kirim
   if (bleChar) {
